@@ -1,43 +1,60 @@
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.gitgnore
-.pytest_cache/
-.hypothesis/
-.DS_Store
-Thumbs.db
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Development
+.env
+.env.local
+.env.*.local
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.DS_Store
+Thumbs.db
+
+# Build outputs
 dist/
 build/
-*.egg-info/
-.pytest_cache/
-htmlcov/
-.coverage.xml
-*.so
-.Python
-*.tmp
-*.temp
+out/
+.next/
+.nuxt/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Cache
+.cache/
+*.cache
+
+# IDE
+*.iml
+.vscode/
+.idea/
+
+# OS
 .DS_Store
-*.zip
-*.tar.gz
-*.whl
-uv.lock
+Thumbs.db
+
+# Testing
+.coverage/
+*.lcov
+.nyc_output/
+
+# Production
+dist/
+build/
+
+# Misc
+.turbo/
+.env*.local
+*.pem

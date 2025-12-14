@@ -208,3 +208,15 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- TypeScript 5.x with React 19 + Next.js 16 (001-phase2-homepage-ui, 004-frontend-backend-integration)
+- SweetAlert2 for modal notifications (004-frontend-backend-integration)
+- Recharts for analytics visualizations (004-frontend-backend-integration)
+- FastAPI 0.124.0 + PostgreSQL (Neon) backend (002-backend-task-management, 003-validate-backend)
+
+## Recent Changes
+- 004-frontend-backend-integration: Added SweetAlert2 and Recharts for complete frontend-backend integration
+- 003-validate-backend: Validated backend API with integration testing
+- 002-backend-task-management: Implemented FastAPI backend with PostgreSQL
+- 001-phase2-homepage-ui: Added TypeScript 5.x with React 19

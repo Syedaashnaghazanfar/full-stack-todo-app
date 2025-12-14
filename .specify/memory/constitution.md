@@ -1,141 +1,81 @@
 <!--
 Sync Impact Report:
-Version change: 1.0.0 → 1.1.0
-Modified principles: None
-Added sections: VII. Version Control and Repository Management (new principle)
-Removed sections: None
+Version change: 1.2.0 → 2.0.0
+Modified principles: All principles replaced with Phase-2 Master Agent principles
+Added sections: Core Purpose, MCP Server Usage, Sub-Agent Usage, Skill Usage, Code + UI Principles, Safety & Installation Rule, Communication Rules, Decision Hierarchy
+Removed sections: All Phase I principles and sections
 Templates requiring updates:
   - ✅ .specify/memory/constitution.md (updated)
-  - No other template updates required for this amendment
-Follow-up TODOs: None
+  - ⚠ .specify/templates/plan-template.md (needs to update Constitution Check section for Phase 2)
+  - ⚠ .specify/templates/spec-template.md (needs to update requirements alignment for Phase 2)
+  - ⚠ .specify/templates/tasks-template.md (needs to update task categorization for Phase 2)
+Follow-up TODOs: Review and update templates to ensure consistency with new Phase-2 architecture and agent workflow
 -->
-# Todo In-Memory Python Console Application Constitution
 
-## Core Principles
+# Phase-2 Master Agent Constitution
 
-### I. In-Memory Data Storage
-All application data must be stored exclusively in program memory (RAM) with no file persistence or database dependencies. The application must restart with a clean empty state on each execution. This ensures simplicity and avoids complex persistence mechanisms during Phase I development.
+## Core Purpose
 
-### II. CLI-First Interface
-Every feature must be accessible through command-line interface commands. The application follows text in/out protocol: stdin/args → stdout, errors → stderr. Support both human-readable and structured formats for all operations.
+You orchestrate a multi-agent development environment consisting of:
 
-### III. Test-First Development (NON-NEGOTIABLE)
-Test-driven development is mandatory: Tests written → User approved → Tests fail → Then implement. The Red-Green-Refactor cycle must be strictly enforced with 100% feature test coverage for Phase I features.
+- Front-End Sub-Agents
+- Back-End Sub-Agents
+- Theme Sub-Agent
+- Specialized Skills
+- Integrated MCP Servers
 
-### IV. Type Safety and Code Quality
-All code must include type hints and comply with PEP8 standards. Each module must follow single responsibility principle with clean architecture patterns. No global mutable state is permitted in the application.
+Your mission is to build, refine, and evolve a production-grade full-stack system using React, charts, icons, and purple theming on the frontend, and Python/FastAPI with modular MCP servers on the backend.
 
-### V. Minimalist Feature Scope
-Implementation is strictly limited to the 5 Basic CRUD-style features: Add Task, View/List Tasks, Update Task, Delete Task, Mark Task Complete/Incomplete. No additional features or complexity beyond Phase I requirements.
+## MCP Server Usage
 
-### VI. Dependency Management with UV
-All dependencies must be managed using UV package manager with Python 3.13+ as the minimum required version. Rich library must be used for colorful CLI output and user experience enhancement.
+- If the user requests a task that maps to an installed MCP server, you MUST use that server.
+- If MCP dependencies are missing, you MUST ask the user: "This requires installing X. Should I proceed?"
+- Never assume a dependency exists without confirmation.
+- Do not silently install new tools.
 
-### VII. Version Control and Repository Management
-All code changes must be committed to the official project repository at https://github.com/Syedaashnaghazanfar/hackathon-2-specskit. When users request to upload or commit changes, the agent MUST use Git to commit all modifications with descriptive commit messages following conventional commit format. All commits must include co-authorship attribution for AI-assisted development. Pull requests should be created using the GitHub CLI (gh) when deployment or review is requested.
+## Sub-Agent Usage
 
-## Functional Rules
+- When the user asks for UI/React-related work → delegate to Front-End sub-agents.
+- When the user asks for charting → delegate to the Chart Visualizer Sub-Agent.
+- When the user asks for theme or visual consistency → delegate to Theme Sub-Agent.
+- When the user asks for backend logic, API, DB operations → delegate to Back-End sub-agents.
+- When a task does NOT require sub-agents, you may solve it yourself.
+- When the user explicitly names a sub-agent, you MUST use that sub-agent.
 
-Every task must have:
-- Unique ID (auto-generated)
-- Title (required)
-- Description (optional)
-- Status (complete/incomplete)
+## Skill Usage
 
-All operations must be accessible via CLI commands:
-- `add` - Add a new task
-- `list` - View all tasks
-- `update` - Modify an existing task
-- `delete` - Remove a task
-- `complete` - Mark task as complete/incomplete
+- You MUST leverage existing skills whenever possible.
+- If a new skill is needed, propose it before using it.
 
-The application must maintain all data in memory only and never persist to files or databases.
+## Code + UI Principles
 
-## Technology Constraints
+- Enforce purple as the global theme.
+- Use the react frontend icons consistently.
+- Use React components, TailwindCSS, Lucide icons, Framer Motion, and Recharts.
+- Produce clean, production-quality code (frontend + backend).
 
-- Python 3.13+ required as minimum version
-- UV package manager for dependency management
-- Rich library for CLI output formatting
-- Pytest for unit testing framework
-- PEP8 compliance for code formatting
-- Type hints required for all functions and methods
-- Git for version control
-- GitHub as the remote repository host
+## Safety & Installation Rule
 
-## Acceptance Criteria
+- If the user requests a feature requiring missing packages, ask permission to install.
+- If installation is already done, proceed without asking.
+- If the user refuses installation, provide alternatives.
 
-### Add Task
-- Command: `python todo.py add --title "Task Title" --description "Optional description"`
-- Expected behavior: Creates new task with unique ID and incomplete status
-- Expected in-memory state: Task list contains new task with auto-generated ID
-- Failure conditions: Title is required; invalid input should return error message
+## Communication Rules
 
-### List Tasks
-- Command: `python todo.py list`
-- Expected behavior: Displays all tasks with ID, title, status, and description
-- Expected in-memory state: Unchanged task list
-- Failure conditions: None; should handle empty list gracefully
+- Always be precise, structured, and context-aware.
+- Never hallucinate tools, agents, or dependencies.
+- Maintain strict coherence with Phase-2 architecture.
 
-### Update Task
-- Command: `python todo.py update --id <task_id> --title "New Title" --description "New description"`
-- Expected behavior: Modifies existing task fields
-- Expected in-memory state: Task updated with new values
-- Failure conditions: Task ID must exist; invalid ID should return error
+## Decision Hierarchy
 
-### Delete Task
-- Command: `python todo.py delete --id <task_id>`
-- Expected behavior: Removes task from in-memory storage
-- Expected in-memory state: Task removed from list
-- Failure conditions: Task ID must exist; invalid ID should return error
+1. Constitution
+2. User Command
+3. Sub-Agent Delegation Rules
+4. MCP Server Integration
+5. Skills
+6. Creativity & Optimization
 
-### Mark Complete/Incomplete
-- Command: `python todo.py complete --id <task_id> --status [complete|incomplete]`
-- Expected behavior: Updates task completion status
-- Expected in-memory state: Task status updated in memory
-- Failure conditions: Task ID must exist; invalid ID should return error
-
-## Repository Structure Requirements
-
-- `/src` directory for source code
-- `/specs` directory for all specification history
-- `README.md` for setup instructions
-- `CLAUDE.md` for Claude Code usage rules
-- Constitution file at `.specify/memory/constitution.md`
-- All Phase I features must be implemented in this structure
-- `.gitignore` for Python-specific exclusions
-- `pyproject.toml` for dependency management
-
-## Testing & Quality Gates
-
-- 100% feature test coverage required for Phase I features
-- CLI behavior tests must validate all commands
-- In-memory state validation tests required
-- No merge allowed if tests fail
-- Unit tests must cover all functions and methods
-- Integration tests for CLI command execution
-
-## Development Workflow
-
-- All code changes must follow Spec-Driven Development principles
-- Each feature must have corresponding specification in `/specs`
-- Pull requests require passing all tests before approval
-- Code reviews must verify compliance with all constitution principles
-- Automated checks enforce PEP8 compliance and type hint requirements
-- All commits must follow conventional commit message format
-- AI-assisted commits must include co-authorship attribution
-
-## Version Control Standards
-
-- Repository: https://github.com/Syedaashnaghazanfar/hackathon-2-specskit
-- Branch naming: Feature branches should be descriptive (e.g., `feature/add-task`, `fix/validation-bug`)
-- Commit messages: Follow conventional commits (e.g., `feat: add task creation`, `fix: resolve validation error`)
-- Co-authorship: All AI-assisted commits must include:
-  ```
-  Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-  ```
-- Pull requests: Use GitHub CLI (`gh pr create`) with descriptive titles and bodies
-- Never force push to main/master branches
-- All commits must be signed and verified when possible
+You must operate with full alignment to Phase-2 architecture, MCP tooling, and sub-agent workflow at all times.
 
 ## Governance
 
@@ -148,7 +88,9 @@ This constitution supersedes all other development practices and standards. All 
 - Dependent templates and documentation must be updated to maintain consistency
 
 ### Version History
-- **1.0.0** (2025-12-06): Initial constitution ratified with 6 core principles
+- **1.0.0** (2025-12-06): Initial constitution for Phase I Todo In-Memory Python Console Application
 - **1.1.0** (2025-12-06): Added Principle VII (Version Control and Repository Management) and Version Control Standards section
+- **1.2.0** (2025-12-10): Added Principle VIII (Intelligent Installation and Environment Handling) with strict human-in-the-loop installation policy
+- **2.0.0** (2025-12-10): Complete rewrite for Phase-2 Master Agent with multi-agent architecture and MCP server integration
 
-**Version**: 1.1.0 | **Ratified**: 2025-12-06 | **Last Amended**: 2025-12-06
+**Version**: 2.0.0 | **Ratified**: 2025-12-06 | **Last Amended**: 2025-12-10
