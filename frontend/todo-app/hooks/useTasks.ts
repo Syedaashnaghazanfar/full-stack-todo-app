@@ -125,17 +125,17 @@ export function useTasks(): UseTasksReturn {
   const getTask = useCallback(
     async (id: string): Promise<Task> => {
       try {
-        setState((prev) => ({ ...prev, loading: true, error: null }));
+        setState((prev) => ({ ...prev, error: null }));
         const task = await apiClient.getTask(id);
         setState((prev) => ({
           ...prev,
           tasks: [...prev.tasks.filter((t) => t.id !== id), task],
-          loading: false,
+          
         }));
         return task;
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to fetch task";
-        setState((prev) => ({ ...prev, loading: false, error: errorMessage }));
+        setState((prev) => ({ ...prev, error: errorMessage }));
 
         // Show error notification
         await showError("Failed to Fetch Task", errorMessage);
@@ -152,12 +152,12 @@ export function useTasks(): UseTasksReturn {
   const createTask = useCallback(
     async (title: string, description?: string): Promise<Task> => {
       try {
-        setState((prev) => ({ ...prev, loading: true, error: null }));
+        setState((prev) => ({ ...prev, error: null }));
         const task = await apiClient.createTask(title, description);
         setState((prev) => ({
           ...prev,
           tasks: [...prev.tasks, task],
-          loading: false,
+          
         }));
 
         // Show success notification
@@ -165,7 +165,7 @@ export function useTasks(): UseTasksReturn {
         return task;
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to create task";
-        setState((prev) => ({ ...prev, loading: false, error: errorMessage }));
+        setState((prev) => ({ ...prev, error: errorMessage }));
 
         // Show error notification
         await showError("Failed to Create Task", errorMessage);
@@ -181,7 +181,7 @@ export function useTasks(): UseTasksReturn {
   const updateTask = useCallback(
     async (id: string, title?: string, description?: string): Promise<Task> => {
       try {
-        setState((prev) => ({ ...prev, loading: true, error: null }));
+        setState((prev) => ({ ...prev, error: null }));
         const updates: { title?: string; description?: string } = {};
         if (title !== undefined) updates.title = title;
         if (description !== undefined) updates.description = description;
@@ -190,7 +190,7 @@ export function useTasks(): UseTasksReturn {
         setState((prev) => ({
           ...prev,
           tasks: prev.tasks.map((t) => (t.id === id ? task : t)),
-          loading: false,
+          
         }));
 
         // Show success notification
@@ -198,7 +198,7 @@ export function useTasks(): UseTasksReturn {
         return task;
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to update task";
-        setState((prev) => ({ ...prev, loading: false, error: errorMessage }));
+        setState((prev) => ({ ...prev, error: errorMessage }));
 
         // Show error notification
         await showError("Failed to Update Task", errorMessage);
@@ -213,19 +213,19 @@ export function useTasks(): UseTasksReturn {
    */
   const completeTask = useCallback(async (id: string): Promise<void> => {
     try {
-      setState((prev) => ({ ...prev, loading: true, error: null }));
+      setState((prev) => ({ ...prev, error: null }));
       const task = await apiClient.completeTask(id);
       setState((prev) => ({
         ...prev,
         tasks: prev.tasks.map((t) => (t.id === id ? task : t)),
-        loading: false,
+        
       }));
 
       // Show success notification
       await showSuccess("Task Marked Complete!", "Great job completing this task.");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to complete task";
-      setState((prev) => ({ ...prev, loading: false, error: errorMessage }));
+      setState((prev) => ({ ...prev, error: errorMessage }));
 
       // Show error notification
       await showError("Failed to Complete Task", errorMessage);
@@ -238,19 +238,19 @@ export function useTasks(): UseTasksReturn {
    */
   const incompleteTask = useCallback(async (id: string): Promise<void> => {
     try {
-      setState((prev) => ({ ...prev, loading: true, error: null }));
+      setState((prev) => ({ ...prev, error: null }));
       const task = await apiClient.incompleteTask(id);
       setState((prev) => ({
         ...prev,
         tasks: prev.tasks.map((t) => (t.id === id ? task : t)),
-        loading: false,
+        
       }));
 
       // Show success notification
       await showSuccess("Task Marked Incomplete!", "Task moved back to active list.");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to mark task incomplete";
-      setState((prev) => ({ ...prev, loading: false, error: errorMessage }));
+      setState((prev) => ({ ...prev, error: errorMessage }));
 
       // Show error notification
       await showError("Failed to Mark Incomplete", errorMessage);
@@ -263,19 +263,19 @@ export function useTasks(): UseTasksReturn {
    */
   const deleteTask = useCallback(async (id: string): Promise<void> => {
     try {
-      setState((prev) => ({ ...prev, loading: true, error: null }));
+      setState((prev) => ({ ...prev, error: null }));
       await apiClient.deleteTask(id);
       setState((prev) => ({
         ...prev,
         tasks: prev.tasks.filter((t) => t.id !== id),
-        loading: false,
+        
       }));
 
       // Show success notification
       await showSuccess("Task Deleted Successfully!", "The task has been removed.");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to delete task";
-      setState((prev) => ({ ...prev, loading: false, error: errorMessage }));
+      setState((prev) => ({ ...prev, error: errorMessage }));
 
       // Show error notification
       await showError("Failed to Delete Task", errorMessage);

@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTasks } from "@/hooks/useTasks";
 import { ArrowLeft, Edit2, Save, X } from "lucide-react";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -20,6 +21,8 @@ export default function TaskDetailPage() {
   const taskId = params.id as string;
 
   const { tasks, getTask, updateTask, loading, error } = useTasks();
+  const { isLoading: authLoading } = useProtectedRoute();
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
@@ -71,6 +74,14 @@ export default function TaskDetailPage() {
   };
 
   if (loading && !task) {
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
         <div className="max-w-3xl mx-auto">

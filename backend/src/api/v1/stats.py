@@ -1,16 +1,19 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from src.api.dependencies import get_db
+from src.api.dependencies import get_db, get_current_user_id
 from src.services.history_service import HistoryService
 from src.utils.response import success_response
 
 router = APIRouter(prefix="/stats", tags=["stats"])
 
 @router.get("/weekly")
-async def get_weekly_stats(db: Session = Depends(get_db)):
-    """Get weekly task statistics"""
-    stats = HistoryService.get_weekly_stats(db)
-    
+async def get_weekly_stats(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_user_id)
+):
+    """Get weekly task statistics for the authenticated user"""
+    stats = HistoryService.get_weekly_stats(db, user_id)
+
     return success_response({
         "tasks_created_this_week": stats["tasks_created_this_week"],
         "tasks_completed_this_week": stats["tasks_completed_this_week"],

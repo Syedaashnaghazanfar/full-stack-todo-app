@@ -12,12 +12,15 @@
 import React, { useEffect } from "react";
 import { useHistory } from "@/hooks/useHistory";
 import { ArrowLeft, Clock, TrendingUp } from "lucide-react";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useRouter } from "next/navigation";
 import HistoryList from "@/components/history/HistoryList";
 import { motion } from "framer-motion";
 
 export default function HistoryPage() {
   const router = useRouter();
+  const { isLoading: authLoading } = useProtectedRoute();
+
   const {
     entries,
     loading,
@@ -35,6 +38,15 @@ export default function HistoryPage() {
   const handlePageChange = (page: number) => {
     fetchHistory(page);
   };
+
+      {/* Show loading while checking auth */}
+      if (authLoading) {
+        return (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+          </div>
+        );
+      }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 py-12 px-4 sm:px-6 lg:px-8">

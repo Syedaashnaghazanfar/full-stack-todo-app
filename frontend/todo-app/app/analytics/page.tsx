@@ -16,6 +16,7 @@
 import React, { useEffect } from "react";
 import { useStats } from "@/hooks/useStats";
 import { ArrowLeft, RefreshCw, BarChart3, TrendingUp } from "lucide-react";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import WeeklyChart from "@/components/analytics/WeeklyChart";
@@ -47,6 +48,8 @@ export default function AnalyticsPage() {
   const router = useRouter();
   const { stats, loading, error, fetchStats, clearError } = useStats();
 
+  const { isLoading: authLoading } = useProtectedRoute();
+
   // Fetch stats on mount
   useEffect(() => {
     fetchStats();
@@ -55,6 +58,15 @@ export default function AnalyticsPage() {
   const handleRefresh = () => {
     fetchStats();
   };
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 py-12 px-4 sm:px-6 lg:px-8">

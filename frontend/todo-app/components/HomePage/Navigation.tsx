@@ -3,6 +3,7 @@
  *
  * Responsive header with logo/brand name, mobile hamburger menu, and desktop navigation links.
  * Sticky positioning with purple background gradient.
+ * Shows logout button when user is authenticated.
  *
  * Usage:
  * <Navigation />
@@ -15,6 +16,8 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Home, ListTodo, History, BarChart3, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 
 interface NavLink {
   label: string;
@@ -31,6 +34,7 @@ const navigationLinks: NavLink[] = [
 
 export const Navigation: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen((prev) => !prev);
@@ -77,6 +81,9 @@ export const Navigation: React.FC = () => {
                 </Link>
               );
             })}
+
+            {/* Logout Button - visible only when authenticated */}
+            {isAuthenticated && <LogoutButton variant="with-text" />}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -132,6 +139,16 @@ export const Navigation: React.FC = () => {
                     </Link>
                   );
                 })}
+
+                {/* Logout Button - mobile view (visible only when authenticated) */}
+                {isAuthenticated && (
+                  <div onClick={() => setIsMobileMenuOpen(false)}>
+                    <LogoutButton
+                      variant="with-text"
+                      className="w-full flex items-center space-x-3 rounded-lg px-4 py-3"
+                    />
+                  </div>
+                )}
               </nav>
             </div>
           </motion.div>

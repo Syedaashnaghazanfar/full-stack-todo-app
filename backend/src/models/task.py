@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Text, Boolean, DateTime, CheckConstraint
+from sqlalchemy import Column, String, Text, Boolean, DateTime, CheckConstraint, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from src.database.base import Base
 from datetime import datetime
 import uuid
@@ -14,6 +15,10 @@ class Task(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     completed_at = Column(DateTime, nullable=True)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
+
+    # Relationships
+    user = relationship("User", back_populates="tasks")
 
     __table_args__ = (
         CheckConstraint('length(trim(title)) > 0', name='task_title_not_empty'),

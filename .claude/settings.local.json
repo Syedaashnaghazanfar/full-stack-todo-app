@@ -122,7 +122,17 @@
       "Bash(python -m alembic:*)",
       "Bash(npx next lint:*)",
       "Bash(npm run lint)",
-      "Bash(git remote set-url:*)"
+      "Bash(git remote set-url:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(.specify/scripts/bash/create-new-feature.sh:*)",
+      "Bash(pkill:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(dir:*)",
+      "Bash(while read f)",
+      "Bash(do rm -f \"$f\")",
+      "Bash(echo:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
