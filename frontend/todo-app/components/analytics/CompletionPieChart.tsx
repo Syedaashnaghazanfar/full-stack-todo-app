@@ -79,7 +79,7 @@ export default function CompletionPieChart({ completed, incomplete }: Completion
               borderRadius: "8px",
               padding: "12px",
             }}
-            formatter={(value: number) => `${value} tasks`}
+            formatter={(value) => `${value} tasks`}
           />
           <Legend
             verticalAlign="bottom"
