@@ -12,6 +12,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTasks } from "@/hooks/useTasks";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { Task } from "@/services/api";
 import { CheckCircle2, Circle, Trash2, Plus, ArrowLeft, ListTodo, TrendingUp, Edit2, Save, X } from "lucide-react";
 import { showConfirm } from "@/components/notifications/alerts";
@@ -22,6 +23,7 @@ import { motion } from "framer-motion";
  */
 export default function TasksPage() {
   const router = useRouter();
+  const { isLoading: authLoading } = useProtectedRoute();
 
   const {
     tasks,
@@ -93,8 +95,7 @@ export default function TasksPage() {
   const handleUpdateTask = async (taskId: string, title: string, description?: string) => {
     try {
       await updateTask(taskId, title, description);
-      // Refresh task list
-      await fetchTasks();
+      
     } catch (err) {
       console.error("Failed to update task:", err);
     }
@@ -106,6 +107,15 @@ export default function TasksPage() {
 
   const incompleteTasks = tasks.filter((t) => !t.is_completed);
   const completedTasks = tasks.filter((t) => t.is_completed);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 py-12 px-4 sm:px-6 lg:px-8">

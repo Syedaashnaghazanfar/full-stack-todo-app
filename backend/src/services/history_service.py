@@ -6,21 +6,45 @@ from src.models.task_history import TaskHistory, ActionType
 from src.utils.timestamps import get_week_boundaries
 
 class HistoryService:
-    """Service for history and analytics operations"""
-    
+    """Service for history and analytics operations with user isolation"""
+
     @staticmethod
-    def get_history_paginated(db: Session, page: int = 1, limit: int = 10, offset: int = None, task_id: UUID = None, action_type: str = None):
-        """Get paginated history with filtering"""
-        query = db.query(TaskHistory).order_by(desc(TaskHistory.timestamp))
-        
+    def get_history_paginated(
+        db: Session,
+        user_id: str,
+        page: int = 1,
+        limit: int = 10,
+        offset: int = None,
+        task_id: UUID = None,
+        action_type: str = None
+    ):
+        """
+        Get paginated history with filtering, scoped to user.
+
+        Args:
+            db: Database session
+            user_id: User UUID to filter history
+            page: Page number (default 1)
+            limit: Items per page (default 10)
+            offset: Optional offset for pagination
+            task_id: Optional task ID filter
+            action_type: Optional action type filter
+
+        Returns:
+            Dict with items and pagination metadata
+        """
+        query = db.query(TaskHistory).filter(
+            TaskHistory.user_id == user_id
+        ).order_by(desc(TaskHistory.timestamp))
+
         if task_id:
             query = query.filter(TaskHistory.task_id == task_id)
-        
+
         if action_type:
             query = query.filter(TaskHistory.action_type == action_type)
-        
+
         total_count = query.count()
-        
+
         # Handle pagination
         if offset is not None:
             items = query.offset(offset).limit(limit).all()
@@ -28,9 +52,9 @@ class HistoryService:
         else:
             items = query.offset((page - 1) * limit).limit(limit).all()
             current_page = page
-        
+
         total_pages = (total_count + limit - 1) // limit
-        
+
         return {
             "items": items,
             "pagination": {
@@ -42,30 +66,47 @@ class HistoryService:
                 "has_prev": current_page > 1
             }
         }
-    
+
     @staticmethod
-    def get_weekly_stats(db: Session):
-        """Get weekly and overall statistics"""
+    def get_weekly_stats(db: Session, user_id: str):
+        """
+        Get weekly and overall statistics for a specific user.
+
+        Args:
+            db: Database session
+            user_id: User UUID to filter statistics
+
+        Returns:
+            Dict with weekly and total statistics
+        """
         from src.models.task import Task
-        
+
         week_start, week_end = get_week_boundaries()
-        
-        # Total statistics
-        total_tasks = db.query(Task).count()
-        total_completed = db.query(Task).filter(Task.is_completed == True).count()
-        total_incomplete = db.query(Task).filter(Task.is_completed == False).count()
-        
-        # Weekly statistics
+
+        # Total statistics (scoped to user)
+        total_tasks = db.query(Task).filter(Task.user_id == user_id).count()
+        total_completed = db.query(Task).filter(
+            Task.user_id == user_id,
+            Task.is_completed == True
+        ).count()
+        total_incomplete = db.query(Task).filter(
+            Task.user_id == user_id,
+            Task.is_completed == False
+        ).count()
+
+        # Weekly statistics (scoped to user)
         tasks_created_this_week = db.query(Task).filter(
+            Task.user_id == user_id,
             Task.created_at >= week_start,
             Task.created_at <= week_end
         ).count()
-        
+
         tasks_completed_this_week = db.query(Task).filter(
+            Task.user_id == user_id,
             Task.completed_at >= week_start,
             Task.completed_at <= week_end
         ).count()
-        
+
         return {
             "tasks_created_this_week": tasks_created_this_week,
             "tasks_completed_this_week": tasks_completed_this_week,

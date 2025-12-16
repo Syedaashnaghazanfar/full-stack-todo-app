@@ -111,13 +111,29 @@ class ApiClient {
       headers: {
         "Content-Type": "application/json",
       },
+      withCredentials: true, // Include cookies in all requests
     });
 
-    // Add response interceptor for error handling
+    // Add response interceptor for error handling and 401 detection
     this.client.interceptors.response.use(
       (response) => response,
-      (error: AxiosError) => {
+      async (error: AxiosError) => {
         console.error("API Error:", error.message);
+
+        // Handle 401 Unauthorized - session expired
+        if (error.response?.status === 401) {
+          // Dynamically import to avoid circular dependencies
+          const { sessionExpired } = await import("@/utils/authAlerts");
+
+          // Show session expired alert
+          await sessionExpired();
+
+          // Redirect to login page
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+        }
+
         return Promise.reject(error);
       }
     );

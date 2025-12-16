@@ -22,6 +22,7 @@
 
 import React, { useState } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
+import { useAuth } from "@/contexts/AuthContext";
 import { Navigation } from "./Navigation";
 import { Sidebar } from "./Sidebar";
 import { HeroSection } from "./HeroSection";
@@ -47,6 +48,8 @@ import type { HomePageProps } from "@/types/components";
  */
 export const HomePage: React.FC<HomePageProps> = ({ initialLoading = false }) => {
   const { isMobile, isTablet, isDesktop } = useResponsive();
+  const { isAuthenticated } = useAuth();
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   /**
@@ -97,8 +100,8 @@ export const HomePage: React.FC<HomePageProps> = ({ initialLoading = false }) =>
           <HeroSection
             headline="Welcome to Your Dashboard"
             description="Streamline your workflow with our powerful, intuitive platform. Manage tasks, track progress, and collaborate seamlessly—all in one place."
-            ctaText="Get Started"
-            ctaLink="/tasks"
+            ctaText={isAuthenticated ? "Go to Tasks" : "Get Started"}
+            ctaLink={isAuthenticated ? "/tasks" : "/signup"}
             backgroundImage="/task2.jpg"
           />
 

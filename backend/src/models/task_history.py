@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Enum, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from src.database.base import Base
 from datetime import datetime
 import uuid
@@ -20,6 +21,10 @@ class TaskHistory(Base):
     action_type = Column(Enum(ActionType), nullable=False)
     description = Column(Text, nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
+
+    # Relationships
+    user = relationship("User", back_populates="history")
 
     __table_args__ = (
         CheckConstraint(
