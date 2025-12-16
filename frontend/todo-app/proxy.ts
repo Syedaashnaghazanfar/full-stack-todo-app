@@ -1,5 +1,5 @@
 /**
- * Next.js Middleware for Route Protection
+ * Next.js Proxy for Route Protection (Next.js 16+)
  *
  * Implements authentication-based access control for protected routes.
  * Runs on every request to check auth status and redirect as needed.
@@ -9,10 +9,10 @@
  * - Redirects unauthenticated users to /login
  * - Redirects authenticated users away from /login and /signup to /tasks
  * - Checks auth_token cookie for authentication status
- * - Server-side middleware (runs before page renders)
+ * - Server-side proxy (runs before page renders)
  *
  * @see /specs/006-auth-integration/spec.md - FR-005, FR-006, FR-007
- * @see https://nextjs.org/docs/app/building-your-application/routing/middleware
+ * @see https://nextjs.org/docs/messages/middleware-to-proxy
  */
 
 import { NextResponse } from 'next/server';
@@ -87,7 +87,7 @@ function isAuthenticated(request: NextRequest): boolean {
 }
 
 /**
- * Middleware function
+ * Proxy function (replaces middleware in Next.js 16+)
  *
  * Runs on every request to protected and auth routes.
  * Enforces authentication requirements and redirects as needed.
@@ -95,7 +95,7 @@ function isAuthenticated(request: NextRequest): boolean {
  * @param request - Next.js request object
  * @returns NextResponse (continue or redirect)
  */
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const authenticated = isAuthenticated(request);
 
@@ -120,9 +120,9 @@ export function middleware(request: NextRequest) {
 }
 
 /**
- * Middleware configuration
+ * Proxy configuration
  *
- * Specifies which routes this middleware runs on.
+ * Specifies which routes this proxy runs on.
  * Uses matcher to avoid running on static files, API routes, etc.
  *
  * @see https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
