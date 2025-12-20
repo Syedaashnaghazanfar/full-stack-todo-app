@@ -20,14 +20,17 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 # Cookie settings for JWT token
 # - httponly=True: Cookie not accessible via JavaScript (XSS protection)
 # - secure=True: Cookie only sent over HTTPS (production setting)
-# - samesite="lax": Cookie sent on same-site requests and top-level navigation
+# - samesite="none": Required for cross-site requests (Vercel → HF Spaces)
 # - max_age=2592000: 30 days in seconds (30 * 24 * 60 * 60)
 # - path="/": Cookie valid for entire application
+import os
+IS_PRODUCTION = os.getenv("ENV", "development") == "production"
+
 COOKIE_SETTINGS = {
     "key": "auth_token",
     "httponly": True,
-    "secure": False,  # Set to True in production (HTTPS required)
-    "samesite": "lax",
+    "secure": IS_PRODUCTION,  # True in production (HTTPS required)
+    "samesite": "none" if IS_PRODUCTION else "lax",  # "none" for cross-site (requires secure=True)
     "max_age": 2592000,  # 30 days
     "path": "/"
 }
@@ -232,8 +235,8 @@ async def logout(
         key="auth_token",
         value="",
         httponly=True,
-        secure=False,  # Match signup/login setting
-        samesite="lax",
+        secure=IS_PRODUCTION,  # Match signup/login setting
+        samesite="none" if IS_PRODUCTION else "lax",
         max_age=0,  # Expire immediately
         path="/"
     )
