@@ -161,11 +161,6 @@ export function useFilters(tasks: Task[]): UseFiltersReturn {
  * @returns Filter state from storage or default state
  */
 function loadFiltersFromStorage(): FilterState {
-  // Check if we're running on the client side (not SSR)
-  if (typeof window === 'undefined') {
-    return DEFAULT_FILTER_STATE;
-  }
-
   try {
     const saved = localStorage.getItem(FILTER_STORAGE_KEY);
     if (saved) {
