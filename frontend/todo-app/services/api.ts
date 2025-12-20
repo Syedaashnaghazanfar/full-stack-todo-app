@@ -120,6 +120,19 @@ class ApiClient {
       withCredentials: true, // Include cookies in all requests
     });
 
+    // Add request interceptor to include Authorization header
+    this.client.interceptors.request.use(
+      (config) => {
+        // Get token from localStorage
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
     // Add response interceptor for error handling and 401 detection
     this.client.interceptors.response.use(
       (response) => response,

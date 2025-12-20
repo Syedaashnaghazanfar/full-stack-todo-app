@@ -83,17 +83,18 @@ async def signup(
             password=signup_request.password
         )
 
-        # Set JWT token in httpOnly cookie
+        # Set JWT token in httpOnly cookie (for same-site requests)
         response.set_cookie(**COOKIE_SETTINGS, value=jwt_token)
 
-        # Return user information (never include password_hash)
+        # Return user information AND token (for cross-site Authorization header)
         return AuthResponse(
             message="Account created successfully",
             user={
                 "id": user.id,
                 "email": user.email,
                 "created_at": user.created_at.isoformat()
-            }
+            },
+            token=jwt_token  # Include token in response body for cross-domain support
         )
 
     except InvalidInputError as e:
@@ -170,17 +171,18 @@ async def login(
             password=login_request.password
         )
 
-        # Set JWT token in httpOnly cookie
+        # Set JWT token in httpOnly cookie (for same-site requests)
         response.set_cookie(**COOKIE_SETTINGS, value=jwt_token)
 
-        # Return user information
+        # Return user information AND token (for cross-site Authorization header)
         return AuthResponse(
             message="Welcome back!",
             user={
                 "id": user.id,
                 "email": user.email,
                 "created_at": user.created_at.isoformat()
-            }
+            },
+            token=jwt_token  # Include token in response body for cross-domain support
         )
 
     except InvalidCredentialsError as e:

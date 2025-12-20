@@ -42,7 +42,7 @@ export async function signup(email: string, password: string): Promise<AuthRespo
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include', // CRITICAL: Include cookies for JWT
+    credentials: 'include', // Include cookies for JWT
     body: JSON.stringify({ email, password }),
   });
 
@@ -52,6 +52,11 @@ export async function signup(email: string, password: string): Promise<AuthRespo
     // Extract error message from API response
     const errorMessage = data.detail || 'Signup failed. Please try again.';
     throw new Error(errorMessage);
+  }
+
+  // Store JWT token in localStorage for cross-domain requests
+  if (data.token) {
+    localStorage.setItem('auth_token', data.token);
   }
 
   return data as AuthResponse;
@@ -82,7 +87,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include', // CRITICAL: Include cookies for JWT
+    credentials: 'include', // Include cookies for JWT
     body: JSON.stringify({ email, password }),
   });
 
@@ -92,6 +97,11 @@ export async function login(email: string, password: string): Promise<AuthRespon
     // Extract error message from API response
     const errorMessage = data.detail || 'Login failed. Please try again.';
     throw new Error(errorMessage);
+  }
+
+  // Store JWT token in localStorage for cross-domain requests
+  if (data.token) {
+    localStorage.setItem('auth_token', data.token);
   }
 
   return data as AuthResponse;
@@ -115,9 +125,14 @@ export async function login(email: string, password: string): Promise<AuthRespon
  * }
  */
 export async function logout(): Promise<LogoutResponse> {
+  const token = localStorage.getItem('auth_token');
+
   const response = await fetch(`${API_URL}/auth/logout`, {
     method: 'POST',
-    credentials: 'include', // CRITICAL: Include cookies for JWT
+    headers: {
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+    },
+    credentials: 'include', // Include cookies for JWT
   });
 
   const data = await response.json();
@@ -126,6 +141,9 @@ export async function logout(): Promise<LogoutResponse> {
     const errorMessage = data.detail || 'Logout failed. Please try again.';
     throw new Error(errorMessage);
   }
+
+  // Clear token from localStorage
+  localStorage.removeItem('auth_token');
 
   return data as LogoutResponse;
 }
@@ -148,9 +166,14 @@ export async function logout(): Promise<LogoutResponse> {
  * }
  */
 export async function getCurrentUser(): Promise<User> {
+  const token = localStorage.getItem('auth_token');
+
   const response = await fetch(`${API_URL}/auth/me`, {
     method: 'GET',
-    credentials: 'include', // CRITICAL: Include cookies for JWT
+    headers: {
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+    },
+    credentials: 'include', // Include cookies for JWT
   });
 
   const data = await response.json();

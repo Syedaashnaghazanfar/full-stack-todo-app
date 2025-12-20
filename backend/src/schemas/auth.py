@@ -36,6 +36,7 @@ class AuthResponse(BaseModel):
     """Schema for authentication response (signup and login)"""
     message: str = Field(..., description="Success message")
     user: dict = Field(..., description="User information (id, email, created_at)")
+    token: str = Field(..., description="JWT token for Authorization header")
 
     class Config:
         json_schema_extra = {
@@ -45,7 +46,8 @@ class AuthResponse(BaseModel):
                     "id": "550e8400-e29b-41d4-a716-446655440000",
                     "email": "user@example.com",
                     "created_at": "2025-12-15T10:30:00Z"
-                }
+                },
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
             }
         }
 

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException, Cookie, status
+from fastapi import Depends, HTTPException, Cookie, Header, status
 from typing import Optional
 from jose import JWTError
 from src.database.connection import SessionLocal
@@ -14,12 +14,20 @@ def get_db() -> Session:
         db.close()
 
 
-def get_current_user_id(auth_token: Optional[str] = Cookie(None)) -> str:
+def get_current_user_id(
+    auth_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+) -> str:
     """
-    Extract user_id from JWT auth_token cookie.
+    Extract user_id from JWT token (Cookie OR Authorization header).
+
+    Supports both authentication methods for cross-domain compatibility:
+    1. Cookie: auth_token (same-site requests)
+    2. Authorization header: Bearer token (cross-site requests)
 
     Args:
         auth_token: JWT token from Cookie header
+        authorization: Bearer token from Authorization header
 
     Returns:
         user_id: User UUID as string
@@ -32,7 +40,15 @@ def get_current_user_id(auth_token: Optional[str] = Cookie(None)) -> str:
         - Cache hit: <5ms response time
         - Cache miss: ~40ms for JWT validation
     """
-    if not auth_token:
+    # Try Authorization header first (for cross-domain requests)
+    token = None
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.replace("Bearer ", "")
+    # Fall back to cookie (for same-site requests)
+    elif auth_token:
+        token = auth_token
+
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required. Please login to access this resource."
@@ -41,7 +57,7 @@ def get_current_user_id(auth_token: Optional[str] = Cookie(None)) -> str:
     try:
         # decode_token already implements caching with 5-minute TTL
         # It will raise JWTError if token is invalid, expired, or malformed
-        payload = decode_token(auth_token, use_cache=True)
+        payload = decode_token(token, use_cache=True)
         user_id = payload.get("sub")
 
         if not user_id:
