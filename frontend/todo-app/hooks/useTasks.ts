@@ -1,337 +1,384 @@
 /**
  * useTasks Hook
  *
- * Custom React hook for managing task state and operations with the backend API.
- * Provides methods for CRUD operations, filtering, and error handling.
+ * Manages tasks via backend API using the apiClient service.
  *
- * @file hooks/useTasks.ts
- * @see /specs/001-phase2-homepage-ui/ - Backend integration
+ * Features:
+ * - Fetch all tasks from backend API
+ * - Create new task with backend API
+ * - Update existing task with backend API
+ * - Delete task with backend API
+ * - Toggle task status (NOT_STARTED → IN_PROGRESS → COMPLETED)
+ * - Automatic cookie-based authentication
+ * - Error handling with SweetAlert2
+ * - Loading states
+ *
+ * @module hooks/useTasks
  */
 
-import { useState, useCallback } from "react";
-import apiClient, { Task } from "@/services/api";
-import { showSuccess, showError } from "@/components/notifications/alerts";
+import { useState, useEffect, useCallback } from 'react';
+import Swal from 'sweetalert2';
+import apiClient from '@/services/api';
+import type { Task as APITask } from '@/services/api';
+import type { Task, TaskStatus, Priority } from '@/types/task.types';
 
 /**
- * Hook state
+ * Task creation data (without auto-computed fields)
  */
-interface UseTasksState {
+export interface CreateTaskData {
+  title: string;
+  description?: string;
+  due_date?: string;
+  tags?: string[];
+}
+
+/**
+ * Task update data (partial updates)
+ */
+export interface UpdateTaskData {
+  title?: string;
+  description?: string;
+  due_date?: string;
+  tags?: string[];
+  status?: TaskStatus;
+}
+
+/**
+ * useTasks hook return type
+ */
+export interface UseTasksReturn {
+  // State
   tasks: Task[];
   loading: boolean;
   error: string | null;
-}
 
-/**
- * Hook return value
- */
-interface UseTasksReturn extends UseTasksState {
-  // Fetch operations
-  fetchTasks: () => Promise<void>;
-  getTask: (id: string) => Promise<Task>;
-
-  // Create/Update operations
-  createTask: (title: string, description?: string) => Promise<Task>;
-  updateTask: (id: string, title?: string, description?: string) => Promise<Task>;
-
-  // Status operations
-  completeTask: (id: string) => Promise<void>;
-  incompleteTask: (id: string) => Promise<void>;
-
-  // Delete operation
+  // Actions
+  createTask: (data: CreateTaskData) => Promise<void>;
+  updateTask: (id: string, updates: UpdateTaskData) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
-
-  // Utility
-  getTaskById: (id: string) => Task | undefined;
-  getCompletedTasks: () => Task[];
-  getIncompleteTasks: () => Task[];
-  clearError: () => void;
+  toggleTaskStatus: (id: string) => Promise<void>;
+  refreshTasks: () => Promise<void>;
 }
 
 /**
- * Hook for managing tasks with backend integration
+ * Convert API task (snake_case) to frontend task (camelCase)
+ */
+function convertApiTaskToFrontend(apiTask: APITask): Task {
+  return {
+    id: apiTask.id,
+    title: apiTask.title,
+    description: apiTask.description || undefined,
+    priority: apiTask.priority as Priority,
+    status: apiTask.status as TaskStatus,
+    tags: apiTask.tags || [],
+    dueDate: apiTask.due_date || undefined,
+    createdAt: apiTask.created_at,
+    updatedAt: apiTask.updated_at,
+  };
+}
+
+/**
+ * Custom hook for task management with backend API integration
+ *
+ * Fetches tasks from backend API and provides CRUD operations.
  *
  * @example
- * ```tsx
- * const {
- *   tasks,
- *   loading,
- *   error,
- *   fetchTasks,
- *   createTask,
- *   completeTask,
- *   deleteTask,
- * } = useTasks();
+ * const { tasks, loading, createTask, updateTask, deleteTask, toggleTaskStatus } = useTasks();
  *
- * useEffect(() => {
- *   fetchTasks();
- * }, [fetchTasks]);
+ * // Create new task
+ * await createTask({
+ *   title: 'Urgent: Fix production bug',
+ *   due_date: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+ *   tags: ['Work', 'Urgent'],
+ * });
  *
- * const handleCreate = async () => {
- *   try {
- *     await createTask("New Task", "Description");
- *     await fetchTasks();
- *   } catch (err) {
- *     console.error("Failed to create task:", err);
- *   }
- * };
- * ```
+ * // Update task
+ * await updateTask(taskId, {
+ *   title: 'Normal: Fix bug',
+ *   status: 'IN_PROGRESS',
+ * });
+ *
+ * // Toggle status: NOT_STARTED → IN_PROGRESS → COMPLETED → NOT_STARTED
+ * await toggleTaskStatus(taskId);
+ *
+ * @returns Task management methods and state
  */
 export function useTasks(): UseTasksReturn {
-  const [state, setState] = useState<UseTasksState>({
-    tasks: [],
-    loading: false,
-    error: null,
-  });
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   /**
-   * Set error message
-   */
-  const setError = useCallback((error: string | null) => {
-    setState((prev) => ({ ...prev, error }));
-  }, []);
-
-  /**
-   * Clear error message
-   */
-  const clearError = useCallback(() => {
-    setError(null);
-  }, [setError]);
-
-  /**
-   * Fetch all tasks from backend
+   * Fetch all tasks from backend API
    */
   const fetchTasks = useCallback(async () => {
     try {
-      setState((prev) => ({ ...prev, loading: true, error: null }));
-      const tasks = await apiClient.getTasks();
-      setState({
-        tasks,
-        loading: false,
-        error: null,
-      });
+      setLoading(true);
+      setError(null);
+
+      const apiTasks = await apiClient.getTasks();
+
+      // Convert API tasks to frontend format
+      const convertedTasks: Task[] = apiTasks.map(convertApiTaskToFrontend);
+
+      setTasks(convertedTasks);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch tasks";
-      setState({
-        tasks: [],
-        loading: false,
-        error: errorMessage,
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tasks';
+      setError(errorMessage);
+      console.error('Error fetching tasks:', err);
+
+      // Show error to user
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Loading Tasks',
+        text: errorMessage,
+        confirmButtonColor: '#8B5CF6',
       });
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   /**
-   * Get single task by ID
+   * Fetch tasks on mount
    */
-  const getTask = useCallback(
-    async (id: string): Promise<Task> => {
-      try {
-        setState((prev) => ({ ...prev, error: null }));
-        const task = await apiClient.getTask(id);
-        setState((prev) => ({
-          ...prev,
-          tasks: [...prev.tasks.filter((t) => t.id !== id), task],
-          
-        }));
-        return task;
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to fetch task";
-        setState((prev) => ({ ...prev, error: errorMessage }));
-
-        // Show error notification
-        await showError("Failed to Fetch Task", errorMessage);
-
-        throw err;
-      }
-    },
-    []
-  );
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
 
   /**
-   * Create new task
+   * Create new task via backend API
    */
   const createTask = useCallback(
-    async (title: string, description?: string): Promise<Task> => {
+    async (data: CreateTaskData): Promise<void> => {
       try {
-        setState((prev) => ({ ...prev, error: null }));
-        const task = await apiClient.createTask(title, description);
-        setState((prev) => ({
-          ...prev,
-          tasks: [...prev.tasks, task],
-          
-        }));
+        setLoading(true);
 
-        // Show success notification
-        await showSuccess("Task Created Successfully!", "Your task has been added.");
-        return task;
+        const createdTask = await apiClient.createTask(
+          data.title,
+          data.description,
+          data.due_date,
+          data.tags
+        );
+
+        // Convert to frontend format
+        const convertedTask = convertApiTaskToFrontend(createdTask);
+
+        // Add to tasks list
+        setTasks((prev) => [convertedTask, ...prev]);
+
+        // Show success message
+        Swal.fire({
+          icon: 'success',
+          title: 'Task Created!',
+          text: `"${createdTask.title}" has been created with ${createdTask.priority} priority.`,
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end',
+        });
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to create task";
-        setState((prev) => ({ ...prev, error: errorMessage }));
+        const errorMessage = err instanceof Error ? err.message : 'Failed to create task';
+        setError(errorMessage);
+        console.error('Error creating task:', err);
 
-        // Show error notification
-        await showError("Failed to Create Task", errorMessage);
-        throw err;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Creating Task',
+          text: errorMessage,
+          confirmButtonColor: '#8B5CF6',
+        });
+      } finally {
+        setLoading(false);
       }
     },
     []
   );
 
   /**
-   * Update task
+   * Update task via backend API
    */
   const updateTask = useCallback(
-    async (id: string, title?: string, description?: string): Promise<Task> => {
+    async (id: string, updates: UpdateTaskData): Promise<void> => {
       try {
-        setState((prev) => ({ ...prev, error: null }));
-        const updates: { title?: string; description?: string } = {};
-        if (title !== undefined) updates.title = title;
-        if (description !== undefined) updates.description = description;
+        setLoading(true);
 
-        const task = await apiClient.updateTask(id, updates);
-        setState((prev) => ({
-          ...prev,
-          tasks: prev.tasks.map((t) => (t.id === id ? task : t)),
-          
-        }));
+        const updatedTask = await apiClient.updateTask(id, {
+          ...(updates.title && { title: updates.title }),
+          ...(updates.description !== undefined && { description: updates.description }),
+          ...(updates.due_date !== undefined && { due_date: updates.due_date }),
+          ...(updates.tags && { tags: updates.tags }),
+          ...(updates.status && { status: updates.status }),
+        });
 
-        // Show success notification
-        await showSuccess("Task Updated Successfully!", "Your changes have been saved.");
-        return task;
+        // Convert to frontend format
+        const convertedTask = convertApiTaskToFrontend(updatedTask);
+
+        // Update tasks list
+        setTasks((prev) => prev.map((task) => (task.id === id ? convertedTask : task)));
+
+        // Show success message
+        Swal.fire({
+          icon: 'success',
+          title: 'Task Updated!',
+          text: `"${updatedTask.title}" has been updated.`,
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end',
+        });
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to update task";
-        setState((prev) => ({ ...prev, error: errorMessage }));
+        const errorMessage = err instanceof Error ? err.message : 'Failed to update task';
+        setError(errorMessage);
+        console.error('Error updating task:', err);
 
-        // Show error notification
-        await showError("Failed to Update Task", errorMessage);
-        throw err;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Updating Task',
+          text: errorMessage,
+          confirmButtonColor: '#8B5CF6',
+        });
+      } finally {
+        setLoading(false);
       }
     },
     []
   );
 
   /**
-   * Mark task as complete
+   * Delete task via backend API
    */
-  const completeTask = useCallback(async (id: string): Promise<void> => {
-    try {
-      setState((prev) => ({ ...prev, error: null }));
-      const task = await apiClient.completeTask(id);
-      setState((prev) => ({
-        ...prev,
-        tasks: prev.tasks.map((t) => (t.id === id ? task : t)),
-        
-      }));
+  const deleteTask = useCallback(
+    async (id: string): Promise<void> => {
+      // Find task for confirmation message
+      const task = tasks.find((t) => t.id === id);
+      const taskTitle = task?.title || 'this task';
 
-      // Show success notification
-      await showSuccess("Task Marked Complete!", "Great job completing this task.");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to complete task";
-      setState((prev) => ({ ...prev, error: errorMessage }));
+      // Confirm deletion
+      const result = await Swal.fire({
+        title: 'Delete Task?',
+        text: `Are you sure you want to delete "${taskTitle}"? This action cannot be undone.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel',
+      });
 
-      // Show error notification
-      await showError("Failed to Complete Task", errorMessage);
-      throw err;
-    }
-  }, []);
+      if (!result.isConfirmed) {
+        return;
+      }
 
-  /**
-   * Mark task as incomplete
-   */
-  const incompleteTask = useCallback(async (id: string): Promise<void> => {
-    try {
-      setState((prev) => ({ ...prev, error: null }));
-      const task = await apiClient.incompleteTask(id);
-      setState((prev) => ({
-        ...prev,
-        tasks: prev.tasks.map((t) => (t.id === id ? task : t)),
-        
-      }));
+      try {
+        setLoading(true);
 
-      // Show success notification
-      await showSuccess("Task Marked Incomplete!", "Task moved back to active list.");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to mark task incomplete";
-      setState((prev) => ({ ...prev, error: errorMessage }));
+        await apiClient.deleteTask(id);
 
-      // Show error notification
-      await showError("Failed to Mark Incomplete", errorMessage);
-      throw err;
-    }
-  }, []);
+        // Remove from tasks list
+        setTasks((prev) => prev.filter((task) => task.id !== id));
 
-  /**
-   * Delete task
-   */
-  const deleteTask = useCallback(async (id: string): Promise<void> => {
-    try {
-      setState((prev) => ({ ...prev, error: null }));
-      await apiClient.deleteTask(id);
-      setState((prev) => ({
-        ...prev,
-        tasks: prev.tasks.filter((t) => t.id !== id),
-        
-      }));
+        // Show success message
+        Swal.fire({
+          icon: 'success',
+          title: 'Task Deleted!',
+          text: `"${taskTitle}" has been deleted.`,
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end',
+        });
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to delete task';
+        setError(errorMessage);
+        console.error('Error deleting task:', err);
 
-      // Show success notification
-      await showSuccess("Task Deleted Successfully!", "The task has been removed.");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to delete task";
-      setState((prev) => ({ ...prev, error: errorMessage }));
-
-      // Show error notification
-      await showError("Failed to Delete Task", errorMessage);
-      throw err;
-    }
-  }, []);
-
-  /**
-   * Utility: Get task by ID
-   */
-  const getTaskById = useCallback(
-    (id: string): Task | undefined => {
-      return state.tasks.find((t) => t.id === id);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Deleting Task',
+          text: errorMessage,
+          confirmButtonColor: '#8B5CF6',
+        });
+      } finally {
+        setLoading(false);
+      }
     },
-    [state.tasks]
+    [tasks]
   );
 
   /**
-   * Utility: Get completed tasks
+   * Toggle task status: COMPLETED ↔ NOT_STARTED (using dedicated backend endpoints)
    */
-  const getCompletedTasks = useCallback((): Task[] => {
-    return state.tasks.filter((t) => t.is_completed);
-  }, [state.tasks]);
+  const toggleTaskStatus = useCallback(
+    async (id: string): Promise<void> => {
+      const task = tasks.find((t) => t.id === id);
+      if (!task) return;
+
+      try {
+        setLoading(true);
+
+        // Use dedicated complete/incomplete endpoints
+        let updatedTask: APITask;
+        if (task.status === 'COMPLETED') {
+          // Mark as incomplete
+          updatedTask = await apiClient.incompleteTask(id);
+        } else {
+          // Mark as complete (from NOT_STARTED or IN_PROGRESS)
+          updatedTask = await apiClient.completeTask(id);
+        }
+
+        // Convert to frontend format
+        const convertedTask = convertApiTaskToFrontend(updatedTask);
+
+        // Update tasks list
+        setTasks((prev) => prev.map((t) => (t.id === id ? convertedTask : t)));
+
+        // Show success message
+        const statusMessage = convertedTask.status === 'COMPLETED' ? 'completed' : 'marked as incomplete';
+        Swal.fire({
+          icon: 'success',
+          title: `Task ${statusMessage}!`,
+          text: `"${convertedTask.title}" has been ${statusMessage}.`,
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end',
+        });
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to toggle task status';
+        setError(errorMessage);
+        console.error('Error toggling task status:', err);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Updating Status',
+          text: errorMessage,
+          confirmButtonColor: '#8B5CF6',
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [tasks]
+  );
 
   /**
-   * Utility: Get incomplete tasks
+   * Manually refresh tasks from backend
    */
-  const getIncompleteTasks = useCallback((): Task[] => {
-    return state.tasks.filter((t) => !t.is_completed);
-  }, [state.tasks]);
+  const refreshTasks = useCallback(async () => {
+    await fetchTasks();
+  }, [fetchTasks]);
 
   return {
-    // State
-    tasks: state.tasks,
-    loading: state.loading,
-    error: state.error,
-
-    // Fetch operations
-    fetchTasks,
-    getTask,
-
-    // Create/Update operations
+    tasks,
+    loading,
+    error,
     createTask,
     updateTask,
-
-    // Status operations
-    completeTask,
-    incompleteTask,
-
-    // Delete operation
     deleteTask,
-
-    // Utilities
-    getTaskById,
-    getCompletedTasks,
-    getIncompleteTasks,
-    clearError,
+    toggleTaskStatus,
+    refreshTasks,
   };
 }
+
+export default useTasks;

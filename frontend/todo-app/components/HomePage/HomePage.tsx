@@ -1,26 +1,14 @@
 "use client";
 
 /**
- * HomePage Container Component
+ * HomePage Container Component - Cyberpunk Neon Elegance Theme
  *
- * Main page container that orchestrates all homepage layout components.
- * Manages responsive layout, sidebar visibility, and component composition.
- *
- * Layout Structure:
- * - Navigation: Fixed top header with hamburger menu (mobile) and desktop links
- * - Sidebar: Collapsible left sidebar (desktop only, hidden on mobile/tablet)
- * - Main Content: Hero section + future sections (Quick Actions, System Status, Stats)
- * - Footer: Full-width footer with links and branding
- *
- * Responsive Behavior:
- * - Mobile (< 640px): Single column, hamburger menu, no sidebar
- * - Tablet (640px - 1024px): Centered content, optional sidebar on menu toggle
- * - Desktop (> 1024px): Full layout with visible sidebar
- *
- * @see /specs/001-phase2-homepage-ui/spec.md - Phase 3: T020-T021
+ * Main page container with glassmorphism effects and animated backgrounds.
+ * Implements the cyberpunk neon elegance design system from research.md
  */
 
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { useResponsive } from "@/hooks/useResponsive";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigation } from "./Navigation";
@@ -30,21 +18,81 @@ import { Footer } from "./Footer";
 import { QuickActionCards } from "./QuickActionCards";
 import { quickActionCards } from "@/data/quickActionCards";
 import type { HomePageProps } from "@/types/components";
+import { pageTransition, pageTransitionConfig } from "@/lib/animations";
+
+/**
+ * Animated Background Component
+ */
+const AnimatedBackground = () => (
+  <div className="fixed inset-0 -z-10 overflow-hidden">
+    {/* Base gradient background */}
+    <div className="absolute inset-0 bg-gradient-to-br from-bg-darkest via-bg-dark to-bg-darkest" />
+
+    {/* Animated gradient orbs */}
+    <motion.div
+      className="absolute top-0 left-1/4 w-[800px] h-[800px] -translate-x-1/2 -translate-y-1/2 opacity-20"
+      animate={{
+        x: [0, 50, 0],
+        y: [0, -30, 0],
+        scale: [1, 1.1, 1],
+      }}
+      transition={{
+        duration: 10,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-radial from-primary-500/30 via-primary-500/10 to-transparent blur-3xl" />
+    </motion.div>
+
+    <motion.div
+      className="absolute bottom-0 right-1/4 w-[600px] h-[600px] translate-x-1/2 translate-y-1/2 opacity-20"
+      animate={{
+        x: [0, -40, 0],
+        y: [0, 40, 0],
+        scale: [1, 1.15, 1],
+      }}
+      transition={{
+        duration: 12,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay: 1,
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-radial from-neon-blue/30 via-neon-blue/10 to-transparent blur-3xl" />
+    </motion.div>
+
+    <motion.div
+      className="absolute top-1/2 left-1/2 w-[700px] h-[700px] -translate-x-1/2 -translate-y-1/2 opacity-15"
+      animate={{
+        rotate: [0, 360],
+        scale: [1, 1.05, 1],
+      }}
+      transition={{
+        duration: 20,
+        repeat: Infinity,
+        ease: "linear",
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-radial from-neon-cyan/20 via-neon-cyan/5 to-transparent blur-3xl" />
+    </motion.div>
+
+    {/* Subtle grid overlay */}
+    <div
+      className="absolute inset-0 opacity-[0.03]"
+      style={{
+        backgroundImage: `
+          linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+        `,
+        backgroundSize: "50px 50px",
+      }}
+    />
+  </div>
+);
 
 /**
  * HomePage Container Component
- *
- * Renders the complete homepage with all layout components.
- * Manages sidebar state and responsive behavior.
- *
- * @example
- * ```tsx
- * // Basic usage
- * <HomePage />
- *
- * // With initial loading state
- * <HomePage initialLoading={true} />
- * ```
  */
 export const HomePage: React.FC<HomePageProps> = ({ initialLoading = false }) => {
   const { isMobile, isTablet, isDesktop } = useResponsive();
@@ -52,50 +100,63 @@ export const HomePage: React.FC<HomePageProps> = ({ initialLoading = false }) =>
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  /**
-   * Toggle sidebar visibility
-   * On mobile/tablet: Show/hide overlay sidebar
-   * On desktop: Expand/collapse sidebar width
-   */
   const handleSidebarToggle = () => {
     setSidebarOpen((prev) => !prev);
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
-      {/* Navigation - Fixed at top */}
+    <motion.div
+      className="flex min-h-screen flex-col"
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageTransition}
+      transition={pageTransitionConfig}
+    >
+      {/* Animated cyberpunk background */}
+      <AnimatedBackground />
+
+      {/* Navigation with glassmorphism */}
       <Navigation />
 
-      {/* Main layout container - Navigation takes 4rem (h-16) */}
+      {/* Main layout container */}
       <div className="flex flex-1 pt-16">
-        {/* Sidebar - Desktop: Always rendered, Mobile/Tablet: Conditional */}
+        {/* Sidebar */}
         {isDesktop ? (
           <Sidebar isOpen={sidebarOpen} onToggle={handleSidebarToggle} />
         ) : (
-          // Mobile/Tablet: Render sidebar only when explicitly opened
           sidebarOpen &&
           !isDesktop && (
             <>
-              {/* Backdrop overlay */}
-              <div
-                className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+              {/* Backdrop overlay with blur */}
+              <motion.div
+                className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
                 onClick={() => setSidebarOpen(false)}
-                aria-hidden="true"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
               />
-              {/* Mobile sidebar */}
-              <div className="fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 bg-white shadow-xl dark:bg-purple-950 lg:hidden">
+              {/* Mobile sidebar with slide animation */}
+              <motion.div
+                className="fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64"
+                initial={{ x: -256 }}
+                animate={{ x: 0 }}
+                exit={{ x: -256 }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              >
                 <Sidebar
                   isOpen={true}
                   onToggle={() => setSidebarOpen(false)}
                   className="relative w-full border-r-0 block"
                 />
-              </div>
+              </motion.div>
             </>
           )
         )}
 
         {/* Main content area */}
-        <main className="flex flex-1 flex-col" role="main" aria-label="Main content">
+        <main className="flex flex-1 flex-col" role="main">
           {/* Hero Section */}
           <HeroSection
             headline="Welcome to Your Dashboard"
@@ -105,68 +166,56 @@ export const HomePage: React.FC<HomePageProps> = ({ initialLoading = false }) =>
             backgroundImage="/task2.jpg"
           />
 
-          {/* Phase 4: QuickActionCards */}
+          {/* Quick Action Cards */}
           <QuickActionCards cards={quickActionCards} />
 
-          {/* Phase 5: SystemStatusWidget will be added here */}
-          {/* <SystemStatusWidget refreshInterval={10000} /> */}
-
-          {/* Phase 6: StatsPreviewArea will be added here */}
-          {/* <StatsPreviewArea layout="grid" slots={6} /> */}
-
-          {/* Footer - Inside main content to respect sidebar width */}
+          {/* Footer */}
           <Footer />
 
-          {/* Loading state overlay (if needed) */}
+          {/* Loading state overlay with glassmorphism */}
           {initialLoading && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
-              <div className="flex flex-col items-center space-y-4">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600" />
-                <p className="text-lg font-medium text-purple-700 dark:text-purple-300">
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xl"
+              style={{
+                background: "rgba(10, 10, 26, 0.8)",
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="flex flex-col items-center space-y-6">
+                {/* Animated spinner with neon glow */}
+                <motion.div
+                  className="relative h-16 w-16"
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-full border-4 border-primary-200/20 border-t-primary-500 shadow-glow-purple" />
+                </motion.div>
+
+                {/* Loading text with gradient */}
+                <motion.p
+                  className="text-lg font-medium bg-gradient-to-r from-primary-400 via-neon-blue to-neon-cyan bg-clip-text text-transparent"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                >
                   Loading your dashboard...
-                </p>
+                </motion.p>
               </div>
-            </div>
+            </motion.div>
           )}
         </main>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 HomePage.displayName = "HomePage";
-
-/**
- * Layout Behavior Notes:
- *
- * 1. Navigation:
- *    - Fixed at top (z-50)
- *    - Mobile: Hamburger menu with dropdown
- *    - Desktop: Horizontal navigation links
- *
- * 2. Sidebar:
- *    - Desktop (>= 1024px): Fixed left, collapsible (256px ↔ 80px)
- *    - Tablet/Mobile (< 1024px): Hidden by default
- *    - Mobile overlay: Full-screen backdrop + slide-in sidebar
- *
- * 3. Main Content:
- *    - Takes remaining width after sidebar
- *    - Responsive padding: 4 (mobile) → 8 (tablet) → 12 (desktop)
- *    - Flex column layout for stacked sections
- *
- * 4. Footer:
- *    - Full width at bottom
- *    - Sticky to bottom if content is short
- *
- * Accessibility:
- * - Semantic HTML (nav, main, footer, aside)
- * - ARIA labels for sidebar toggle and main content
- * - Keyboard navigation support
- * - Focus management for mobile menu
- * - Backdrop click to close mobile sidebar
- *
- * Performance:
- * - useResponsive hook with debounced resize listener
- * - Conditional rendering based on breakpoints
- * - Framer Motion animations respect prefers-reduced-motion
- */

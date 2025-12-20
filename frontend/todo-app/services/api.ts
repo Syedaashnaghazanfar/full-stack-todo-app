@@ -29,6 +29,11 @@ export interface Task {
   created_at: string;
   updated_at: string;
   completed_at: string | null;
+  // New fields for Skills & Subagents Architecture
+  priority: string;
+  tags: string[];
+  due_date: string | null;
+  status: string;
 }
 
 /**
@@ -36,7 +41,8 @@ export interface Task {
  */
 export interface HistoryEntry {
   history_id: string;
-  task_id: string;
+  task_id: string | null;  // Nullable - preserved after task deletion
+  task_title: string;  // Task title for display
   action_type: "CREATED" | "UPDATED" | "COMPLETED" | "INCOMPLETED" | "DELETED";
   description: string | null;
   timestamp: string;
@@ -189,11 +195,18 @@ class ApiClient {
   /**
    * Create a new task
    */
-  async createTask(title: string, description?: string): Promise<Task> {
+  async createTask(
+    title: string,
+    description?: string,
+    due_date?: string,
+    tags?: string[]
+  ): Promise<Task> {
     try {
       const response = await this.client.post<ApiResponse<Task>>("/tasks", {
         title,
         ...(description && { description }),
+        ...(due_date && { due_date }),
+        ...(tags && tags.length > 0 && { tags }),
       });
       return response.data.data;
     } catch (error) {
@@ -207,7 +220,13 @@ class ApiClient {
    */
   async updateTask(
     id: string,
-    updates: Partial<{ title: string; description: string }>
+    updates: Partial<{
+      title: string;
+      description: string;
+      due_date: string;
+      tags: string[];
+      status: string;
+    }>
   ): Promise<Task> {
     try {
       const response = await this.client.put<ApiResponse<Task>>(`/tasks/${id}`, updates);
@@ -302,6 +321,18 @@ class ApiClient {
     }
   }
 
+  /**
+   * Delete a specific history entry
+   */
+  async deleteHistoryEntry(historyId: string): Promise<void> {
+    try {
+      await this.client.delete(`/history/${historyId}`);
+    } catch (error) {
+      console.error(`Failed to delete history entry ${historyId}:`, error);
+      throw error;
+    }
+  }
+
   // ========================================================================
   // Statistics Endpoints
   // ========================================================================
@@ -315,6 +346,69 @@ class ApiClient {
       return response.data.data;
     } catch (error) {
       console.error("Failed to fetch weekly stats:", error);
+      throw error;
+    }
+  }
+
+  // ========================================================================
+  // Notification Endpoints
+  // ========================================================================
+
+  /**
+   * Fetch notifications for authenticated user
+   */
+  async getNotifications(unreadOnly: boolean = false): Promise<{
+    notifications: any[];
+    unread_count: number;
+    total_count: number;
+  }> {
+    try {
+      const params = new URLSearchParams();
+      if (unreadOnly) params.append('unread', 'true');
+
+      const response = await this.client.get(`/notifications?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mark notification as read
+   */
+  async markNotificationAsRead(notificationId: string): Promise<any> {
+    try {
+      const response = await this.client.patch(`/notifications/${notificationId}/read`);
+      return response.data.data || response.data;
+    } catch (error) {
+      console.error(`Failed to mark notification ${notificationId} as read:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mark all notifications as read
+   */
+  async markAllNotificationsAsRead(): Promise<{ count: number }> {
+    try {
+      const response = await this.client.patch('/notifications/mark-all-read');
+      return response.data.data;
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get unread notification count
+   */
+  async getUnreadCount(): Promise<number> {
+    try {
+      const response = await this.client.get<ApiResponse<{ count: number }>>('/notifications/unread/count');
+      return response.data.data.count;
+    } catch (error) {
+      console.error('Failed to get unread count:', error);
       throw error;
     }
   }

@@ -1,14 +1,8 @@
 /**
- * Analytics Dashboard Page
+ * Analytics Dashboard Page - Cyberpunk Neon Elegance Theme
  *
- * Displays analytics dashboard with Recharts visualizations:
- * - Weekly bar chart (completed vs incomplete tasks)
- * - Metric cards (total stats)
- * - Activity timeline (operations over time)
- *
- * Uses purple theme from chartConfig.ts (#7c3aed)
- *
- * @see /specs/004-frontend-backend-integration/ - Analytics dashboard
+ * Enhanced with glassmorphism and neon accents.
+ * Preserves all Recharts functionality and backend integration.
  */
 
 "use client";
@@ -23,6 +17,10 @@ import WeeklyChart from "@/components/analytics/WeeklyChart";
 import MetricCard from "@/components/analytics/MetricCard";
 import ActivityTimeline from "@/components/analytics/ActivityTimeline";
 import CompletionPieChart from "@/components/analytics/CompletionPieChart";
+import { AnimatedNeonBackground } from "@/components/shared/AnimatedNeonBackground";
+import { GlassCard } from "@/components/ui/glass-card";
+import { NeonButton } from "@/components/ui/neon-button";
+import { fadeInUp, staggerContainer } from "@/lib/animations";
 
 // Transform WeeklyStats into chart data format
 interface WeeklyStatsData {
@@ -43,11 +41,9 @@ function transformWeeklyData(stats: WeeklyStatsData) {
   ];
 }
 
-
 export default function AnalyticsPage() {
   const router = useRouter();
   const { stats, loading, error, fetchStats, clearError } = useStats();
-
   const { isLoading: authLoading } = useProtectedRoute();
 
   // Fetch stats on mount
@@ -63,13 +59,22 @@ export default function AnalyticsPage() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+        <motion.div
+          className="h-16 w-16"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        >
+          <div className="h-full w-full rounded-full border-4 border-primary-200/20 border-t-primary-500 shadow-glow-purple" />
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Vibrant Animated Neon Background */}
+      <AnimatedNeonBackground variant="mixed" opacity={0.35} />
+
       <div className="max-w-7xl mx-auto">
         {/* Header with Back Button and Refresh */}
         <div className="flex items-center justify-between mb-6">
@@ -77,181 +82,179 @@ export default function AnalyticsPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => router.push("/")}
-            className="flex items-center gap-2 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors group"
+            className="flex items-center gap-2 text-primary-400 hover:text-primary-300 font-medium transition-all duration-300 hover:gap-3 focus:outline-none focus:ring-2 focus:ring-primary-500/50 rounded px-2 py-1"
           >
-            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft size={20} />
             Back to Dashboard
           </motion.button>
-          <motion.button
+
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            onClick={handleRefresh}
-            disabled={loading}
-            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg disabled:shadow-none"
           >
-            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-            Refresh Data
-          </motion.button>
+            <NeonButton
+              variant="secondary"
+              size="md"
+              icon={<RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />}
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              Refresh
+            </NeonButton>
+          </motion.div>
         </div>
 
-        {/* Page Header with Icon */}
+        {/* Page Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial="initial"
+          animate="animate"
+          variants={staggerContainer}
           className="mb-10"
         >
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg">
-              <BarChart3 className="h-8 w-8 text-white" />
+          <motion.div variants={fadeInUp} className="flex items-center gap-4 mb-2">
+            <div className="p-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+              <BarChart3 className="h-8 w-8 text-neon-blue drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
             </div>
             <div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Analytics Dashboard
+              <h1
+                className="text-4xl md:text-5xl font-bold text-white"
+                style={{
+                  background: 'linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #3b82f6 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                Analytics
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-2">
-                <TrendingUp size={16} className="text-purple-500" />
-                Track your productivity and task completion trends
+              <p className="text-text-secondary mt-1 flex items-center gap-2">
+                <TrendingUp size={16} className="text-neon-blue" />
+                Track your productivity and task completion patterns
               </p>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
 
-        {/* Error Alert */}
+        {/* Error Display */}
         {error && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg shadow-sm"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
           >
-            <p className="font-medium">{error}</p>
-            <button
-              onClick={clearError}
-              className="mt-2 text-sm underline hover:no-underline"
-            >
-              Dismiss
-            </button>
+            <GlassCard variant="standard" className="p-4 border-neon-red/30">
+              <div className="flex items-center justify-between">
+                <p className="text-neon-red">{error}</p>
+                <button
+                  onClick={clearError}
+                  className="text-text-secondary hover:text-text-primary"
+                >
+                  ✕
+                </button>
+              </div>
+            </GlassCard>
           </motion.div>
         )}
 
-        {/* Loading State */}
-        {loading && !stats && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
-            <div className="inline-block">
-              <div className="h-16 w-16 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600 shadow-lg" />
-            </div>
-            <p className="mt-6 text-lg font-medium text-purple-600 dark:text-purple-400">
-              Loading your analytics...
-            </p>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Crunching the numbers for you
-            </p>
-          </motion.div>
-        )}
-
-        {/* Analytics Content */}
-        {!loading && stats && (
+        {/* Stats Grid */}
+        {stats && !loading && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
             className="space-y-8"
           >
-            {/* Metric Cards Row */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-            >
+            {/* Metric Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <MetricCard
                 title="Total Tasks"
                 value={stats.total_tasks}
                 type="total"
               />
               <MetricCard
-                title="Total Completed"
+                title="Completed"
                 value={stats.total_completed}
                 type="completed"
               />
               <MetricCard
-                title="Total Incomplete"
+                title="Incomplete"
                 value={stats.total_incomplete}
                 type="incomplete"
               />
               <MetricCard
-                title="This Week Created"
+                title="This Week"
                 value={stats.tasks_created_this_week}
                 type="created"
               />
-            </motion.div>
+            </div>
 
-            {/* Charts Row - Bar Chart and Pie Chart Side by Side */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-            >
-              {/* Weekly Bar Chart */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-purple-100 dark:border-purple-900">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
-                  This Week&apos;s Activity
-                </h2>
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Weekly Chart */}
+              <GlassCard variant="elevated" className="p-6">
+                <h3
+                  className="text-xl font-bold mb-4 text-white"
+                  style={{
+                    background: 'linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #3b82f6 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  Weekly Activity
+                </h3>
                 <WeeklyChart data={transformWeeklyData(stats)} />
-              </div>
+              </GlassCard>
 
-              {/* Completion Pie Chart */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-purple-100 dark:border-purple-900">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
+              {/* Pie Chart */}
+              <GlassCard variant="elevated" className="p-6">
+                <h3
+                  className="text-xl font-bold mb-4 text-white"
+                  style={{
+                    background: 'linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #3b82f6 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
                   Completion Status
-                </h2>
+                </h3>
                 <CompletionPieChart
                   completed={stats.total_completed}
                   incomplete={stats.total_incomplete}
                 />
-              </div>
-            </motion.div>
+              </GlassCard>
+            </div>
 
             {/* Activity Timeline */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-purple-100 dark:border-purple-900"
-            >
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
-                Activity Timeline
-              </h2>
+            <GlassCard variant="elevated" className="p-6">
+              <h3
+                className="text-xl font-bold mb-4 text-white"
+                style={{
+                  background: 'linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #3b82f6 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                Recent Activity
+              </h3>
               <ActivityTimeline data={transformWeeklyData(stats)} />
-            </motion.div>
+            </GlassCard>
           </motion.div>
         )}
 
-        {/* Empty State */}
-        {!loading && !stats && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-20 text-center border border-purple-100 dark:border-purple-900"
-          >
-            <div className="flex justify-center mb-6">
-              <div className="p-6 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-full">
-                <BarChart3 className="h-16 w-16 text-purple-500" />
-              </div>
-            </div>
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
-              No Analytics Data
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">
-              Start creating and completing tasks to see your analytics
-            </p>
-          </motion.div>
+        {/* Loading State */}
+        {loading && !stats && (
+          <div className="flex items-center justify-center py-20">
+            <motion.div
+              className="h-16 w-16"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="h-full w-full rounded-full border-4 border-neon-blue/20 border-t-neon-blue shadow-glow-blue" />
+            </motion.div>
+          </div>
         )}
       </div>
     </div>

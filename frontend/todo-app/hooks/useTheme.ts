@@ -36,41 +36,41 @@ interface ThemeContextValue {
 }
 
 /**
- * Light mode color palette
+ * Light mode color palette - Cyberpunk Neon Elegance
  */
 const lightPalette: ColorPalette = {
-  primary: "#8B5CF6", // Violet-500
-  primaryHover: "#7C3AED", // Violet-600
-  secondary: "#6D28D9", // Violet-700
-  accent: "#A78BFA", // Violet-400
-  background: "#FFFFFF",
-  surface: "#F8FAFC", // Slate-50
-  text: "#1E293B", // Slate-800
-  textSecondary: "#64748B", // Slate-500
-  border: "#E2E8F0", // Slate-200
-  success: "#10B981", // Green-500
-  warning: "#F59E0B", // Amber-500
-  error: "#EF4444", // Red-500
-  info: "#3B82F6", // Blue-500
+  primary: "#8B5CF6", // Primary purple
+  primaryHover: "#7C3AED", // Darker purple for hover
+  secondary: "#A78BFA", // Light purple accent
+  accent: "#A855F7", // Neon purple
+  background: "#F8F7FF", // Light main background
+  surface: "#FFFFFF", // Light card background
+  text: "#1E1B4B", // Dark text
+  textSecondary: "#64748B", // Gray secondary text
+  border: "#E2E8F0", // Light gray border
+  success: "#10B981", // Green for success
+  warning: "#F59E0B", // Amber for warning
+  error: "#EF4444", // Red for error
+  info: "#3B82F6", // Blue for info
 };
 
 /**
- * Dark mode color palette
+ * Dark mode color palette - Cyberpunk Neon Elegance
  */
 const darkPalette: ColorPalette = {
-  primary: "#8B5CF6", // Violet-500
-  primaryHover: "#A78BFA", // Violet-400 (lighter for dark bg)
-  secondary: "#A78BFA", // Violet-400
-  accent: "#C4B5FD", // Violet-300
-  background: "#0F172A", // Slate-900
-  surface: "#1E293B", // Slate-800
-  text: "#F8FAFC", // Slate-50
-  textSecondary: "#94A3B8", // Slate-400
-  border: "#334155", // Slate-700
-  success: "#10B981", // Green-500
-  warning: "#F59E0B", // Amber-500
-  error: "#EF4444", // Red-500
-  info: "#3B82F6", // Blue-500
+  primary: "#A78BFA", // Lighter purple for dark mode contrast
+  primaryHover: "#C4B5FD", // Even lighter purple for hover
+  secondary: "#1A1A2E", // Dark elevated surface
+  accent: "#A855F7", // Neon purple accent
+  background: "#0A0A1A", // Main dark background
+  surface: "#0F0F23", // Card backgrounds
+  text: "#F8FAFC", // Light text
+  textSecondary: "#94A3B8", // Secondary text
+  border: "#334155", // Darker border
+  success: "#10B981", // Green for success
+  warning: "#F59E0B", // Amber for warning
+  error: "#EF4444", // Red for error
+  info: "#06B6D4", // Cyan for info (neon accent)
 };
 
 /**
@@ -138,7 +138,7 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 /**
  * Local storage key for theme preference
  */
-const THEME_STORAGE_KEY = "phase2-theme-mode";
+const THEME_STORAGE_KEY = "todo-app-theme";
 
 /**
  * Get initial theme mode from localStorage or system preference
@@ -146,7 +146,7 @@ const THEME_STORAGE_KEY = "phase2-theme-mode";
 const getInitialMode = (): ThemeMode => {
   // Check if running in browser
   if (typeof window === "undefined") {
-    return "light";
+    return "dark"; // Default to dark for cyberpunk theme
   }
 
   // Check localStorage
@@ -160,7 +160,7 @@ const getInitialMode = (): ThemeMode => {
     return "dark";
   }
 
-  return "light";
+  return "dark"; // Default to dark for cyberpunk theme
 };
 
 /**
@@ -189,7 +189,7 @@ interface ThemeProviderProps {
  * ```
  */
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, initialMode }) => {
-  const [mode, setModeState] = useState<ThemeMode>(initialMode ?? "light");
+  const [mode, setModeState] = useState<ThemeMode>(initialMode ?? "dark");
 
   // Initialize theme from storage/system on mount
   useEffect(() => {

@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from uuid import UUID
 from datetime import datetime
+from fastapi import HTTPException, status
 from src.models.task_history import TaskHistory, ActionType
 from src.utils.timestamps import get_week_boundaries
 
@@ -116,3 +117,37 @@ class HistoryService:
             "week_end": week_end,
             "total_tasks": total_tasks
         }
+
+    @staticmethod
+    def delete_history_entry(db: Session, history_id: UUID, user_id: str) -> bool:
+        """
+        Delete a specific history entry, verifying user ownership.
+
+        Args:
+            db: Database session
+            history_id: History entry UUID
+            user_id: User UUID to verify ownership
+
+        Returns:
+            True if deleted successfully, False if not found
+
+        Raises:
+            HTTPException 403: If history entry belongs to different user
+        """
+        # Get history entry
+        history = db.query(TaskHistory).filter(TaskHistory.history_id == history_id).first()
+
+        if not history:
+            return False
+
+        # Verify ownership
+        if history.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access forbidden: You do not have permission to delete this history entry"
+            )
+
+        # Delete history entry
+        db.delete(history)
+        db.commit()
+        return True

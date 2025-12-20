@@ -214,6 +214,7 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - SweetAlert2 for modal notifications (004-frontend-backend-integration)
 - Recharts for analytics visualizations (004-frontend-backend-integration)
 - FastAPI 0.124.0 + PostgreSQL (Neon) backend (002-backend-task-management, 003-validate-backend)
+- TypeScript 5.x, React 19.2.1, Next.js 16.0.10, Python 3.11 (backend - existing) (007-skills-subagents-architecture)
 
 ## Recent Changes
 - 004-frontend-backend-integration: Added SweetAlert2 and Recharts for complete frontend-backend integration

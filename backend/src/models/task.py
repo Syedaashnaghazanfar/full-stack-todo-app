@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Text, Boolean, DateTime, CheckConstraint, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from src.database.base import Base
 from datetime import datetime
@@ -17,8 +17,15 @@ class Task(Base):
     completed_at = Column(DateTime, nullable=True)
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
 
+    # New fields for Skills & Subagents Architecture
+    priority = Column(String(20), nullable=False, default='LOW')
+    tags = Column(JSONB, nullable=False, default=list)
+    due_date = Column(DateTime(timezone=True), nullable=True)
+    status = Column(String(20), nullable=False, default='NOT_STARTED')
+
     # Relationships
     user = relationship("User", back_populates="tasks")
+    notifications = relationship("Notification", back_populates="task", cascade="all, delete-orphan")
 
     __table_args__ = (
         CheckConstraint('length(trim(title)) > 0', name='task_title_not_empty'),
@@ -27,7 +34,20 @@ class Task(Base):
             '(is_completed = true AND completed_at IS NOT NULL) OR (is_completed = false AND completed_at IS NULL)',
             name='task_completed_at_consistency'
         ),
+        CheckConstraint(
+            "status IN ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED')",
+            name='task_status_check'
+        ),
+        CheckConstraint(
+            "priority IN ('VERY_IMPORTANT', 'HIGH', 'MEDIUM', 'LOW')",
+            name='task_priority_check'
+        ),
     )
 
+    @property
+    def is_very_important(self) -> bool:
+        """Check if task has VERY_IMPORTANT priority"""
+        return self.priority == 'VERY_IMPORTANT'
+
     def __repr__(self):
-        return f"<Task(id={self.id}, title={self.title}, is_completed={self.is_completed})>"
+        return f"<Task(id={self.id}, title={self.title}, priority={self.priority}, status={self.status})>"

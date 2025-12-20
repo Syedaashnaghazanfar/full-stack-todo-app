@@ -7,7 +7,8 @@ from src.models.task_history import ActionType
 class HistoryResponse(BaseModel):
     """Schema for single history entry"""
     history_id: UUID
-    task_id: UUID
+    task_id: Optional[UUID]  # Nullable - preserved after task deletion
+    task_title: str  # Task title preserved for reference
     action_type: ActionType
     description: Optional[str]
     timestamp: datetime

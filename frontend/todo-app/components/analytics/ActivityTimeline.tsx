@@ -39,7 +39,7 @@ export default function ActivityTimeline({ data }: ActivityTimelineProps) {
   // If no data, show empty state
   if (!data || data.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
+      <div className="h-64 flex items-center justify-center text-text-secondary">
         <p>No activity data available</p>
       </div>
     );
@@ -53,77 +53,86 @@ export default function ActivityTimeline({ data }: ActivityTimelineProps) {
     incomplete: item.incomplete,
   }));
 
+  // Custom tooltip with glassmorphism
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-bg-card/95 backdrop-blur-xl border border-neon-cyan/30 rounded-lg p-3 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+          <p className="font-semibold text-text-primary mb-2">{data.day}</p>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-xs">
+              <div className="w-2 h-2 rounded-full bg-neon-cyan shadow-[0_0_4px_rgba(6,182,212,0.6)]" />
+              <span className="text-text-secondary">Total:</span>
+              <span className="text-neon-cyan font-semibold">{data.total}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <div className="w-2 h-2 rounded-full bg-neon-green" />
+              <span className="text-text-secondary">Completed:</span>
+              <span className="text-neon-green font-semibold">{data.completed}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <div className="w-2 h-2 rounded-full bg-neon-yellow" />
+              <span className="text-text-secondary">Incomplete:</span>
+              <span className="text-neon-yellow font-semibold">{data.incomplete}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <AreaChart data={formattedData} margin={CHART_CONFIG.margin}>
+      <AreaChart data={formattedData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
         <defs>
-          <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-            <stop
-              offset="5%"
-              stopColor={CHART_COLORS.purple.main}
-              stopOpacity={0.3}
-            />
-            <stop
-              offset="95%"
-              stopColor={CHART_COLORS.purple.main}
-              stopOpacity={0}
-            />
+          {/* Neon cyan gradient for area fill */}
+          <linearGradient id="neonCyanGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
+            <stop offset="50%" stopColor="#06b6d4" stopOpacity={0.2} />
+            <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid
           strokeDasharray="3 3"
-          stroke={CHART_COLORS.gray.light}
-          opacity={0.3}
+          stroke="rgba(255, 255, 255, 0.1)"
+          vertical={false}
         />
         <XAxis
           dataKey="day"
-          stroke={CHART_COLORS.gray.medium}
-          style={{
-            fontSize: "14px",
-            fontWeight: "500",
-          }}
+          stroke="rgba(255, 255, 255, 0.5)"
+          tick={{ fill: 'rgba(255, 255, 255, 0.7)', fontSize: 12, fontWeight: 500 }}
+          axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
         />
         <YAxis
-          stroke={CHART_COLORS.gray.medium}
-          style={{
-            fontSize: "14px",
-          }}
+          stroke="rgba(255, 255, 255, 0.5)"
+          tick={{ fill: 'rgba(255, 255, 255, 0.7)', fontSize: 12 }}
+          axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
         />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            border: `1px solid ${CHART_COLORS.purple.light}`,
-            borderRadius: "8px",
-            padding: "12px",
-          }}
-          content={({ active, payload }) => {
-            if (active && payload && payload.length) {
-              const data = payload[0].payload;
-              return (
-                <div className="bg-white dark:bg-gray-800 border border-purple-300 dark:border-purple-700 rounded-lg p-3 shadow-lg">
-                  <p className="font-semibold text-gray-900 dark:text-white mb-2">
-                    {data.day}
-                  </p>
-                  <p className="text-sm text-purple-600 dark:text-purple-400">
-                    Total: {data.total}
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Completed: {data.completed} | Incomplete: {data.incomplete}
-                  </p>
-                </div>
-              );
-            }
-            return null;
-          }}
-        />
+        <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(6, 182, 212, 0.3)', strokeWidth: 2 }} />
         <Area
           type="monotone"
           dataKey="total"
           name="Total Activity"
-          stroke={CHART_COLORS.purple.main}
+          stroke="#06b6d4"
           strokeWidth={3}
-          fill="url(#colorTotal)"
-          animationDuration={CHART_CONFIG.animationDuration}
+          fill="url(#neonCyanGradient)"
+          animationDuration={1200}
+          animationBegin={0}
+          dot={{
+            fill: '#06b6d4',
+            stroke: 'rgba(6, 182, 212, 0.3)',
+            strokeWidth: 4,
+            r: 5,
+          }}
+          activeDot={{
+            r: 7,
+            fill: '#06b6d4',
+            stroke: 'rgba(6, 182, 212, 0.5)',
+            strokeWidth: 6,
+            filter: 'drop-shadow(0 0 8px rgba(6, 182, 212, 0.6))',
+          }}
         />
       </AreaChart>
     </ResponsiveContainer>

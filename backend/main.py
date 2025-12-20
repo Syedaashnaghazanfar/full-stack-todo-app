@@ -6,6 +6,7 @@ from src.api.v1.tasks import router as tasks_router
 from src.api.v1.history import router as history_router
 from src.api.v1.stats import router as stats_router
 from src.api.v1.auth import router as auth_router
+from src.api.v1.notifications import router as notifications_router
 from src.exceptions.handlers import register_exception_handlers
 
 load_dotenv()
@@ -35,6 +36,7 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(tasks_router, prefix="/api/v1")
 app.include_router(history_router, prefix="/api/v1")
 app.include_router(stats_router, prefix="/api/v1")
+app.include_router(notifications_router, prefix="/api/v1")
 
 @app.get("/api/v1/health")
 async def health_check():
