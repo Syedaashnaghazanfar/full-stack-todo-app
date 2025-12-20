@@ -17,7 +17,8 @@ class TaskHistory(Base):
     __tablename__ = "task_history"
 
     history_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    task_id = Column(UUID(as_uuid=True), ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
+    task_id = Column(UUID(as_uuid=True), nullable=True, index=True)  # Nullable - preserved after task deletion
+    task_title = Column(String(255), nullable=False)  # Store task title for reference after deletion
     action_type = Column(Enum(ActionType), nullable=False)
     description = Column(Text, nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)

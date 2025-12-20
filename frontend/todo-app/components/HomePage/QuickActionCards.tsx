@@ -1,28 +1,18 @@
-/**
- * QuickActionCards Component
- *
- * Renders a responsive grid of quick-action cards with icons, titles, descriptions,
- * and navigation links. Each card is clickable and includes hover animations.
- * Cards appear with staggered animations using Framer Motion.
- *
- * Usage:
- * <QuickActionCards cards={quickActionData} />
- *
- * Responsive Behavior:
- * - Mobile: 1 column grid
- * - Tablet: 2 column grid
- * - Desktop: 3 column grid
- *
- * @see /specs/001-phase2-homepage-ui/spec.md - Phase 4: T025-T033
- */
+"use client";
 
-'use client';
+/**
+ * QuickActionCards Component - Cyberpunk Neon Elegance Theme
+ *
+ * Enhanced with glassmorphism cards and neon glow effects.
+ * Preserves all existing functionality while upgrading visuals.
+ */
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card } from '../shared/Card';
-import { LucideIcon } from 'lucide-react';
+import { GlassCard } from '../ui/glass-card';
+import { LucideIcon, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { staggerContainer, listItem, cardLift } from '@/lib/animations';
 
 // Define the shape of a quick action card
 export interface QuickActionCard {
@@ -41,124 +31,111 @@ export interface QuickActionCardsProps {
 
 /**
  * QuickActionCards Component
- *
- * Renders a responsive grid of quick-action cards with icons, titles, descriptions,
- * and navigation links. Each card is clickable and includes hover animations.
- * Cards appear with staggered animations using Framer Motion.
  */
 export const QuickActionCards: React.FC<QuickActionCardsProps> = ({
   cards,
   className
 }) => {
-  // Animation variants for staggered entrance
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: {
-      opacity: 0,
-      y: 20,
-      scale: 0.95
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1
-    },
-    hover: {
-      y: -5,
-      scale: 1.02
-    }
-  };
-
   return (
     <section
-      className={cn('w-full py-12 px-4 sm:px-6 lg:px-12', className)}
+      className={cn('w-full py-16 px-4 sm:px-6 lg:px-12', className)}
       aria-labelledby="quick-actions-title"
     >
       <div className="mx-auto max-w-7xl">
-        <motion.h2
-          id="quick-actions-title"
+        {/* Section Title */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-10 text-center text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent sm:text-5xl"
+          className="mb-12 text-center"
         >
-          Quick Actions
-        </motion.h2>
+          <h2
+            id="quick-actions-title"
+            className="text-4xl font-bold sm:text-5xl mb-4 text-white"
+            style={{
+              background: 'linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #3b82f6 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            Quick Actions
+          </h2>
+          <p className="text-text-secondary text-lg max-w-2xl mx-auto">
+            Jump right into your workflow with these shortcuts
+          </p>
+        </motion.div>
 
+        {/* Cards Grid */}
         <AnimatePresence>
           <motion.div
             className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
             role="list"
-            aria-label="Quick action cards"
           >
-            {cards.map((card, index) => (
+            {cards.map((card) => (
               <motion.div
                 key={card.id}
-                variants={itemVariants}
-                whileHover="hover"
-                layout
+                variants={listItem}
                 role="listitem"
               >
                 <a
                   href={card.link}
                   target={card.target || '_self'}
                   rel={card.target === '_blank' ? 'noopener noreferrer' : undefined}
-                  className="block h-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-xl"
+                  className="block h-full focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-2xl"
                   aria-label={`${card.title}: ${card.description}`}
-                  tabIndex={0}
                 >
-                  <Card className="relative h-full flex flex-col items-center text-center p-8 transition-all duration-300 hover:shadow-xl border-purple-100 dark:border-purple-900 bg-white dark:bg-gray-800 overflow-hidden group rounded-xl">
-                    {/* Icon container with gradient background */}
-                    <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 p-4 shadow-lg">
+                  <GlassCard
+                    variant="elevated"
+                    hover
+                    glow
+                    className="relative h-full flex flex-col items-center text-center p-8 group"
+                  >
+                    {/* Icon container with neon glow */}
+                    <motion.div
+                      className="mb-6 flex h-20 w-20 items-center justify-center rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 transition-all duration-300"
+                      whileHover={{
+                        scale: 1.1,
+                        boxShadow: "0 0 30px rgba(168, 85, 247, 0.4)",
+                      }}
+                    >
                       <card.icon
-                        className="h-12 w-12 text-white"
-                        aria-hidden="true"
+                        className="h-12 w-12 text-primary-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"
                       />
-                    </div>
+                    </motion.div>
 
                     {/* Content */}
-                    <h3 className="mb-3 text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    <h3
+                      className="mb-3 text-2xl font-bold text-white"
+                      style={{
+                        background: 'linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #3b82f6 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                    >
                       {card.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-6 text-base">
+
+                    <p className="text-text-secondary mb-6 text-base flex-grow">
                       {card.description}
                     </p>
 
-                    {/* CTA text */}
-                    <span className="mt-auto inline-flex items-center text-sm font-semibold text-purple-600 group-hover:text-purple-700 dark:text-purple-400 dark:group-hover:text-purple-300 transition-colors">
+                    {/* CTA with arrow */}
+                    <span className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-primary-400 group-hover:text-primary-300 transition-colors">
                       Learn more
-                      <svg
-                        className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
+                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </span>
 
-                    {/* Bottom gradient accent bar */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-400 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-xl" />
-                  </Card>
+                    {/* Bottom neon accent bar */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-neon-purple via-primary-500 to-neon-blue opacity-0 group-hover:opacity-100 transition-opacity rounded-b-2xl" />
+
+                    {/* Decorative glow on hover */}
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary-500/5 to-neon-blue/5 opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
+                  </GlassCard>
                 </a>
               </motion.div>
             ))}

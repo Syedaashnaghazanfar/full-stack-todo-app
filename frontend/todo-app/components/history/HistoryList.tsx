@@ -18,12 +18,14 @@ interface HistoryListProps {
   entries: HistoryEntryType[];
   pagination: PaginationMeta;
   onPageChange: (page: number) => void;
+  onDeleteEntry?: (historyId: string) => void;
 }
 
 export default function HistoryList({
   entries,
   pagination,
   onPageChange,
+  onDeleteEntry,
 }: HistoryListProps) {
   const { page, total_pages, total_count } = pagination;
 
@@ -65,7 +67,12 @@ export default function HistoryList({
       {/* Entries List */}
       <div className="space-y-0">
         {entries.map((entry, index) => (
-          <HistoryEntry key={entry.history_id} entry={entry} index={index} />
+          <HistoryEntry
+            key={entry.history_id}
+            entry={entry}
+            index={index}
+            onDelete={onDeleteEntry}
+          />
         ))}
       </div>
 

@@ -27,16 +27,16 @@ interface CompletionPieChartProps {
 }
 
 export default function CompletionPieChart({ completed, incomplete }: CompletionPieChartProps) {
-  // Prepare data for pie chart
+  // Prepare data for pie chart with neon colors
   const data = [
-    { name: "Completed", value: completed, color: CHART_COLORS.green.main },
-    { name: "Incomplete", value: incomplete, color: CHART_COLORS.orange.main },
+    { name: "Completed", value: completed, color: "#10b981" }, // neon-green
+    { name: "Incomplete", value: incomplete, color: "#f59e0b" }, // neon-yellow
   ];
 
   // If no data, show empty state
   if (completed === 0 && incomplete === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
+      <div className="h-64 flex items-center justify-center text-text-secondary">
         <p>No task data available</p>
       </div>
     );
@@ -47,69 +47,110 @@ export default function CompletionPieChart({ completed, incomplete }: Completion
   const completedPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
   const incompletePercent = total > 0 ? Math.round((incomplete / total) * 100) : 0;
 
-  // Custom label to show percentages
+  // Custom label to show percentages with neon glow
   const renderCustomLabel = (entry: any) => {
     const percent = total > 0 ? Math.round((entry.value / total) * 100) : 0;
     return `${percent}%`;
+  };
+
+  // Custom tooltip with glassmorphism
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      return (
+        <div className="bg-bg-card/95 backdrop-blur-xl border border-primary-500/30 rounded-lg p-3 shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+          <p className="text-sm font-semibold text-text-primary mb-1">{data.name}</p>
+          <div className="flex items-center gap-2 text-xs">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: data.payload.color }} />
+            <span className="text-text-secondary">Count:</span>
+            <span className="text-text-primary font-semibold">{data.value} tasks</span>
+          </div>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
     <div className="space-y-4">
       <ResponsiveContainer width="100%" height={350}>
         <PieChart>
+          <defs>
+            {/* Neon glow filter for pie slices */}
+            <filter id="neonGlow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            labelLine={false}
-            label={renderCustomLabel}
-            outerRadius={120}
-            fill="#8884d8"
+            labelLine={{
+              stroke: 'rgba(255, 255, 255, 0.3)',
+              strokeWidth: 1,
+            }}
+            label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+              if (!midAngle || !cx || !cy || !outerRadius || !percent) return null;
+              const RADIAN = Math.PI / 180;
+              const radius = outerRadius + 25;
+              const x = cx + radius * Math.cos(-midAngle * RADIAN);
+              const y = cy + radius * Math.sin(-midAngle * RADIAN);
+              return (
+                <text
+                  x={x}
+                  y={y}
+                  fill="rgba(255, 255, 255, 0.9)"
+                  textAnchor={x > cx ? 'start' : 'end'}
+                  dominantBaseline="central"
+                  className="text-sm font-bold"
+                  style={{ filter: 'drop-shadow(0 0 4px rgba(139, 92, 246, 0.5))' }}
+                >
+                  {`${(percent * 100).toFixed(0)}%`}
+                </text>
+              );
+            }}
+            outerRadius={110}
+            innerRadius={60}
+            paddingAngle={2}
             dataKey="value"
-            animationDuration={CHART_CONFIG.animationDuration}
+            animationDuration={1200}
+            animationBegin={100}
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+              <Cell
+                key={`cell-${index}`}
+                fill={entry.color}
+                stroke="rgba(255, 255, 255, 0.1)"
+                strokeWidth={2}
+                style={{ filter: 'drop-shadow(0 0 8px currentColor)' }}
+              />
             ))}
           </Pie>
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "rgba(255, 255, 255, 0.95)",
-              border: `1px solid ${CHART_COLORS.purple.light}`,
-              borderRadius: "8px",
-              padding: "12px",
-            }}
-            formatter={(value: number) => `${value} tasks`}
-          />
-          <Legend
-            verticalAlign="bottom"
-            height={36}
-            wrapperStyle={{
-              paddingTop: "20px",
-              fontSize: "14px",
-              fontWeight: "500",
-            }}
-          />
+          <Tooltip content={<CustomTooltip />} />
         </PieChart>
       </ResponsiveContainer>
 
       {/* Summary Stats Below Chart */}
-      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-purple-100 dark:border-purple-900">
-        <div className="text-center">
+      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+        <div className="text-center p-3 bg-neon-green/5 backdrop-blur-sm border border-neon-green/20 rounded-lg">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: CHART_COLORS.green.main }} />
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Completed</span>
+            <div className="w-3 h-3 rounded-full bg-neon-green shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+            <span className="text-sm font-medium text-text-secondary">Completed</span>
           </div>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400">{completed}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{completedPercent}% of total</p>
+          <p className="text-3xl font-bold text-neon-green drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">{completed}</p>
+          <p className="text-xs text-text-muted mt-1">{completedPercent}% of total</p>
         </div>
-        <div className="text-center">
+        <div className="text-center p-3 bg-neon-yellow/5 backdrop-blur-sm border border-neon-yellow/20 rounded-lg">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: CHART_COLORS.orange.main }} />
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Incomplete</span>
+            <div className="w-3 h-3 rounded-full bg-neon-yellow shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+            <span className="text-sm font-medium text-text-secondary">Incomplete</span>
           </div>
-          <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{incomplete}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{incompletePercent}% of total</p>
+          <p className="text-3xl font-bold text-neon-yellow drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">{incomplete}</p>
+          <p className="text-xs text-text-muted mt-1">{incompletePercent}% of total</p>
         </div>
       </div>
     </div>

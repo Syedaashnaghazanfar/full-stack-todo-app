@@ -1,21 +1,25 @@
 /**
- * History Page
+ * History Page - Cyberpunk Neon Elegance Theme
  *
- * Displays chronological log of all task operations with pagination.
- * Shows CREATED, UPDATED, COMPLETED, INCOMPLETED, DELETED actions.
- *
- * @see /specs/004-frontend-backend-integration/ - View history
+ * Enhanced with glassmorphism and color-coded timeline.
+ * Preserves all history functionality and backend integration.
  */
 
 "use client";
 
 import React, { useEffect } from "react";
 import { useHistory } from "@/hooks/useHistory";
-import { ArrowLeft, Clock, TrendingUp } from "lucide-react";
+import { ArrowLeft, Clock, TrendingUp, RefreshCw } from "lucide-react";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useRouter } from "next/navigation";
 import HistoryList from "@/components/history/HistoryList";
+import { AnimatedNeonBackground } from "@/components/shared/AnimatedNeonBackground";
 import { motion } from "framer-motion";
+import Swal from "sweetalert2";
+import apiClient from "@/services/api";
+import { GlassCard } from "@/components/ui/glass-card";
+import { NeonButton } from "@/components/ui/neon-button";
+import { fadeInUp, staggerContainer } from "@/lib/animations";
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -39,77 +43,143 @@ export default function HistoryPage() {
     fetchHistory(page);
   };
 
-      {/* Show loading while checking auth */}
-      if (authLoading) {
-        return (
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-          </div>
-        );
-      }
+  const handleRefresh = () => {
+    fetchHistory(pagination.page);
+  };
+
+  /**
+   * Handle delete history entry
+   */
+  const handleDeleteEntry = async (historyId: string) => {
+    try {
+      await apiClient.deleteHistoryEntry(historyId);
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'History Entry Cleared',
+        text: 'The history entry has been removed.',
+        timer: 2000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end',
+      });
+
+      fetchHistory(pagination.page);
+    } catch (err) {
+      console.error('Error deleting history entry:', err);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Deleting Entry',
+        text: err instanceof Error ? err.message : 'Failed to delete history entry',
+        confirmButtonColor: '#8B5CF6',
+      });
+    }
+  };
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <motion.div
+          className="h-16 w-16"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        >
+          <div className="h-full w-full rounded-full border-4 border-neon-yellow/20 border-t-neon-yellow shadow-glow-blue" />
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        {/* Header with Back Button */}
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={() => router.push("/")}
-          className="mb-6 flex items-center gap-2 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors group"
-        >
-          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          Back to Dashboard
-        </motion.button>
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Vibrant Animated Neon Background */}
+      <AnimatedNeonBackground variant="mixed" opacity={0.35} />
 
-        {/* Page Header with Stats */}
+      <div className="max-w-5xl mx-auto">
+        {/* Header with Back Button and Refresh */}
+        <div className="flex items-center justify-between mb-6">
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => router.push("/")}
+            className="flex items-center gap-2 text-primary-400 hover:text-primary-300 font-medium transition-all duration-300 hover:gap-3 focus:outline-none focus:ring-2 focus:ring-primary-500/50 rounded px-2 py-1"
+          >
+            <ArrowLeft size={20} />
+            Back to Dashboard
+          </motion.button>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <NeonButton
+              variant="secondary"
+              size="md"
+              icon={<RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />}
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              Refresh
+            </NeonButton>
+          </motion.div>
+        </div>
+
+        {/* Page Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial="initial"
+          animate="animate"
+          variants={staggerContainer}
           className="mb-10"
         >
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg">
-              <Clock className="h-8 w-8 text-white" />
+          <motion.div variants={fadeInUp} className="flex items-center gap-4 mb-4">
+            <div className="p-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+              <Clock className="h-8 w-8 text-neon-yellow drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
             </div>
             <div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1
+                className="text-4xl md:text-5xl font-bold text-white"
+                style={{
+                  background: 'linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #3b82f6 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
                 Task History
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-2">
-                <TrendingUp size={16} className="text-purple-500" />
+              <p className="text-text-secondary mt-1 flex items-center gap-2">
+                <TrendingUp size={16} className="text-neon-yellow" />
                 Track every action and change in your tasks
               </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Stats Cards */}
           {!loading && pagination.total_count > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              variants={fadeInUp}
               className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6"
             >
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-purple-100 dark:border-purple-900">
-                <div className="text-sm text-gray-500 dark:text-gray-400">Total Events</div>
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+              <GlassCard variant="elevated" className="p-4">
+                <div className="text-sm text-text-secondary">Total Events</div>
+                <div className="text-2xl font-bold text-primary-400 mt-1">
                   {pagination.total_count}
                 </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-purple-100 dark:border-purple-900">
-                <div className="text-sm text-gray-500 dark:text-gray-400">Current Page</div>
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+              </GlassCard>
+              <GlassCard variant="elevated" className="p-4">
+                <div className="text-sm text-text-secondary">Current Page</div>
+                <div className="text-2xl font-bold text-neon-blue mt-1">
                   {pagination.page} / {pagination.total_pages}
                 </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-purple-100 dark:border-purple-900">
-                <div className="text-sm text-gray-500 dark:text-gray-400">Showing</div>
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+              </GlassCard>
+              <GlassCard variant="elevated" className="p-4">
+                <div className="text-sm text-text-secondary">Showing</div>
+                <div className="text-2xl font-bold text-neon-cyan mt-1">
                   {entries.length} events
                 </div>
-              </div>
+              </GlassCard>
             </motion.div>
           )}
         </motion.div>
@@ -117,17 +187,21 @@ export default function HistoryPage() {
         {/* Error Alert */}
         {error && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg shadow-sm"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
           >
-            <p className="font-medium">{error}</p>
-            <button
-              onClick={clearError}
-              className="mt-2 text-sm underline hover:no-underline"
-            >
-              Dismiss
-            </button>
+            <GlassCard variant="standard" className="p-4 border-neon-red/30">
+              <div className="flex items-center justify-between">
+                <p className="text-neon-red font-medium">{error}</p>
+                <button
+                  onClick={clearError}
+                  className="text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+            </GlassCard>
           </motion.div>
         )}
 
@@ -138,13 +212,17 @@ export default function HistoryPage() {
             animate={{ opacity: 1 }}
             className="text-center py-16"
           >
-            <div className="inline-block">
-              <div className="h-16 w-16 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600 shadow-lg" />
-            </div>
-            <p className="mt-6 text-lg font-medium text-purple-600 dark:text-purple-400">
+            <motion.div
+              className="inline-block h-16 w-16"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="h-full w-full rounded-full border-4 border-neon-yellow/20 border-t-neon-yellow shadow-glow-cyan" />
+            </motion.div>
+            <p className="mt-6 text-lg font-medium bg-gradient-to-r from-neon-yellow to-neon-cyan bg-clip-text text-transparent">
               Loading your activity timeline...
             </p>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-2 text-sm text-text-secondary">
               Gathering all your task events
             </p>
           </motion.div>
@@ -161,6 +239,7 @@ export default function HistoryPage() {
               entries={entries}
               pagination={pagination}
               onPageChange={handlePageChange}
+              onDeleteEntry={handleDeleteEntry}
             />
           </motion.div>
         )}

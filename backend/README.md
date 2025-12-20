@@ -1,6 +1,23 @@
-# Backend Task Management Module
+---
+title: Todo App Backend API
+emoji: ✅
+colorFrom: purple
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
+# Todo App Backend API
 
 A complete FastAPI + SQLAlchemy backend for task management with Neon PostgreSQL.
+
+## 🚀 Hugging Face Spaces Deployment
+
+This backend is configured for deployment on Hugging Face Spaces using Docker.
+
+**Live API**: Once deployed, your API will be available at `https://your-space-name.hf.space/api/v1`
+
+**Interactive Docs**: `https://your-space-name.hf.space/api/docs`
 
 ## Quick Start (15-20 minutes)
 

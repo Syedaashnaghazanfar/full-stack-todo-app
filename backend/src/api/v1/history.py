@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 from src.api.dependencies import get_db, get_current_user_id
@@ -32,3 +32,37 @@ async def get_history(
         "items": history_items,
         "pagination": pagination
     })
+
+
+@router.delete("/{history_id}", status_code=status.HTTP_200_OK)
+async def delete_history_entry(
+    history_id: UUID,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_user_id)
+):
+    """
+    Delete a specific history entry.
+
+    Allows users to clear individual history entries from their timeline.
+
+    Args:
+        history_id: History entry UUID
+        db: Database session (injected)
+        user_id: Current user ID (injected from auth)
+
+    Returns:
+        Success response
+
+    Raises:
+        HTTPException 403: If history entry belongs to different user
+        HTTPException 404: If history entry does not exist
+    """
+    success = HistoryService.delete_history_entry(db, history_id, user_id)
+
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="History entry not found"
+        )
+
+    return success_response({"message": "History entry deleted successfully"})

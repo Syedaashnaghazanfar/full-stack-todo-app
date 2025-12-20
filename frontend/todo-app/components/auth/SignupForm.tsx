@@ -18,8 +18,8 @@
  */
 
 import React, { useState, FormEvent, ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { Mail, Lock, UserPlus } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Mail, Lock, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { signup } from '@/services/authApi';
 import { signupSuccess, signupError } from '@/utils/authAlerts';
 import type { SignupFormData } from '@/types/auth';
@@ -47,6 +47,7 @@ const MIN_PASSWORD_LENGTH = 8;
  */
 export const SignupForm: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Form state
   const [formData, setFormData] = useState<SignupFormData>({
@@ -58,6 +59,7 @@ export const SignupForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<SignupFormData>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof SignupFormData, boolean>>>({});
+  const [showPassword, setShowPassword] = useState(false);
 
   /**
    * Validate email field
@@ -89,6 +91,31 @@ export const SignupForm: React.FC = () => {
       return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
     }
     return '';
+  };
+
+  /**
+   * Calculate password strength
+   *
+   * @param password - Password to evaluate
+   * @returns Strength level (weak, medium, strong) and score
+   */
+  const getPasswordStrength = (password: string): { level: 'weak' | 'medium' | 'strong'; score: number } => {
+    if (!password) return { level: 'weak', score: 0 };
+
+    let score = 0;
+    // Length contributes to score
+    if (password.length >= 8) score += 1;
+    if (password.length >= 12) score += 1;
+
+    // Character variety contributes to score
+    if (/[A-Z]/.test(password)) score += 1;
+    if (/[a-z]/.test(password)) score += 1;
+    if (/[0-9]/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+    if (score <= 2) return { level: 'weak', score };
+    if (score <= 4) return { level: 'medium', score };
+    return { level: 'strong', score };
   };
 
   /**
@@ -164,8 +191,9 @@ export const SignupForm: React.FC = () => {
       // Show success alert
       await signupSuccess();
 
-      // Redirect to tasks page (auto-login)
-      router.push('/tasks');
+      // Redirect to intended page or tasks page as fallback (auto-login)
+      const redirectTo = searchParams.get('redirect') || '/tasks';
+      router.push(redirectTo);
     } catch (error) {
       // Show error alert with API message
       const errorMessage = error instanceof Error ? error.message : 'Signup failed. Please try again.';
@@ -179,12 +207,12 @@ export const SignupForm: React.FC = () => {
     <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md" noValidate>
       {/* Email Field */}
       <div className="space-y-2">
-        <label htmlFor="email" className="block text-sm font-medium text-purple-700">
+        <label htmlFor="email" className="block text-sm font-medium text-[var(--text-secondary)]">
           Email Address
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Mail className="h-5 w-5 text-purple-400" aria-hidden="true" />
+            <Mail className="h-5 w-5 text-[var(--primary-400)]" aria-hidden="true" />
           </div>
           <input
             type="email"
@@ -195,11 +223,13 @@ export const SignupForm: React.FC = () => {
             onBlur={handleBlur}
             disabled={isLoading}
             className={`
-              block w-full pl-10 pr-3 py-3 border rounded-lg
-              focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-              disabled:bg-gray-100 disabled:cursor-not-allowed
-              transition-colors
-              ${touched.email && errors.email ? 'border-red-500' : 'border-purple-300'}
+              block w-full pl-10 pr-3 py-3 rounded-lg
+              bg-[var(--glass-bg)] backdrop-blur-sm border border-[var(--glass-border)]
+              focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)]
+              disabled:bg-[var(--muted)] disabled:cursor-not-allowed
+              transition-all duration-300
+              shadow-[0_0_10px_rgba(139,92,246,0.1)] focus:shadow-[0_0_20px_rgba(139,92,246,0.2)]
+              ${touched.email && errors.email ? 'border-[var(--destructive)] focus:ring-[var(--destructive)] focus:shadow-[0_0_20px_rgba(239,68,68,0.2)]' : ''}
             `}
             placeholder="you@example.com"
             required
@@ -208,7 +238,7 @@ export const SignupForm: React.FC = () => {
           />
         </div>
         {touched.email && errors.email && (
-          <p id="email-error" className="text-sm text-red-600" role="alert">
+          <p id="email-error" className="text-sm text-[var(--destructive)]" role="alert">
             {errors.email}
           </p>
         )}
@@ -216,15 +246,15 @@ export const SignupForm: React.FC = () => {
 
       {/* Password Field */}
       <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-purple-700">
+        <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)]">
           Password
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Lock className="h-5 w-5 text-purple-400" aria-hidden="true" />
+            <Lock className="h-5 w-5 text-[var(--primary-400)]" aria-hidden="true" />
           </div>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             name="password"
             value={formData.password}
@@ -232,11 +262,13 @@ export const SignupForm: React.FC = () => {
             onBlur={handleBlur}
             disabled={isLoading}
             className={`
-              block w-full pl-10 pr-3 py-3 border rounded-lg
-              focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-              disabled:bg-gray-100 disabled:cursor-not-allowed
-              transition-colors
-              ${touched.password && errors.password ? 'border-red-500' : 'border-purple-300'}
+              block w-full pl-10 pr-10 py-3 rounded-lg
+              bg-[var(--glass-bg)] backdrop-blur-sm border border-[var(--glass-border)]
+              focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)]
+              disabled:bg-[var(--muted)] disabled:cursor-not-allowed
+              transition-all duration-300
+              shadow-[0_0_10px_rgba(139,92,246,0.1)] focus:shadow-[0_0_20px_rgba(139,92,246,0.2)]
+              ${touched.password && errors.password ? 'border-[var(--destructive)] focus:ring-[var(--destructive)] focus:shadow-[0_0_20px_rgba(239,68,68,0.2)]' : ''}
             `}
             placeholder="Min 8 characters"
             required
@@ -244,9 +276,60 @@ export const SignupForm: React.FC = () => {
             aria-invalid={touched.password && !!errors.password}
             aria-describedby={touched.password && errors.password ? 'password-error' : undefined}
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--text-secondary)] hover:text-[var(--primary-400)]"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Eye className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
         </div>
+
+        {/* Password Strength Indicator */}
+        <div className="space-y-1">
+          <div className="flex justify-between text-xs">
+            <span className="text-[var(--text-secondary)]">Password strength</span>
+            {formData.password && (
+              <span className={`
+                font-medium
+                ${getPasswordStrength(formData.password).level === 'weak' ? 'text-[var(--destructive)]' :
+                  getPasswordStrength(formData.password).level === 'medium' ? 'text-[var(--neon-yellow)]' :
+                  'text-[var(--neon-green)]'}
+              `}>
+                {getPasswordStrength(formData.password).level}
+              </span>
+            )}
+          </div>
+          <div className="flex space-x-1 h-2">
+            {[1, 2, 3, 4, 5].map((level) => {
+              const strength = getPasswordStrength(formData.password).score;
+              return (
+                <div
+                  key={level}
+                  className={`
+                    flex-1 rounded-full transition-all duration-300
+                    ${level <= strength
+                      ? level <= 2
+                        ? 'bg-[var(--destructive)]'
+                        : level <= 4
+                          ? 'bg-[var(--neon-yellow)]'
+                          : 'bg-[var(--neon-green)]'
+                      : 'bg-[var(--muted)]'}
+                  `}
+                  style={{ height: '8px' }}
+                />
+              );
+            })}
+          </div>
+        </div>
+
         {touched.password && errors.password && (
-          <p id="password-error" className="text-sm text-red-600" role="alert">
+          <p id="password-error" className="text-sm text-[var(--destructive)]" role="alert">
             {errors.password}
           </p>
         )}
@@ -258,19 +341,21 @@ export const SignupForm: React.FC = () => {
         disabled={isLoading || !isFormValid()}
         className={`
           w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg
-          font-semibold text-white
-          bg-gradient-to-r from-purple-600 to-pink-600
-          hover:from-purple-700 hover:to-pink-700
-          focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2
-          disabled:opacity-50 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-500
+          font-semibold text-[var(--primary-foreground)]
+          bg-[var(--primary-500)]
+          hover:bg-[var(--primary-400)]
+          focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)] focus:ring-offset-2
+          disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[var(--muted)]
           transition-all duration-200
           transform hover:scale-105 active:scale-95
+          border border-[var(--primary-500)]
+          shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.4)]
         `}
         aria-label="Create account"
       >
         {isLoading ? (
           <>
-            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-[var(--primary-foreground)] border-t-transparent" />
             Creating Account...
           </>
         ) : (
@@ -282,7 +367,7 @@ export const SignupForm: React.FC = () => {
       </button>
 
       {/* Password Requirements Help Text */}
-      <p className="text-xs text-purple-600 text-center">
+      <p className="text-xs text-[var(--text-secondary)] text-center">
         Password must be at least {MIN_PASSWORD_LENGTH} characters long
       </p>
     </form>

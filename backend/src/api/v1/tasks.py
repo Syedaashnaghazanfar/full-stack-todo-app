@@ -15,14 +15,21 @@ async def create_task(
     db: Session = Depends(get_db),
     user_id: str = Depends(get_current_user_id)
 ):
-    """Create a new task for the authenticated user"""
+    """Create a new task for the authenticated user with automatic priority classification"""
     if not validate_title(task.title):
         return error_response("title: must be 1-255 characters")
 
     if not validate_description(task.description):
         return error_response("description: must be 0-5000 characters")
 
-    db_task = TaskService.create_task(db, task.title, task.description, user_id)
+    db_task = TaskService.create_task(
+        db,
+        task.title,
+        task.description,
+        user_id,
+        due_date=task.due_date,
+        tags=task.tags or []
+    )
     return success_response(TaskResponse.from_orm(db_task).dict(), popup="TASK_CREATED")
 
 @router.get("")
@@ -54,9 +61,16 @@ async def update_task(
     db: Session = Depends(get_db),
     user_id: str = Depends(get_current_user_id)
 ):
-    """Update task title and/or description (ownership verified)"""
-    if not task_update.title and not task_update.description:
-        return error_response("At least one field (title or description) must be provided")
+    """Update task fields with automatic priority re-classification (ownership verified)"""
+    # At least one field must be provided
+    if not any([
+        task_update.title,
+        task_update.description is not None,
+        task_update.due_date is not None,
+        task_update.tags is not None,
+        task_update.status
+    ]):
+        return error_response("At least one field must be provided for update")
 
     if task_update.title and not validate_title(task_update.title):
         return error_response("title: must be 1-255 characters")
@@ -64,7 +78,16 @@ async def update_task(
     if task_update.description is not None and not validate_description(task_update.description):
         return error_response("description: must be 0-5000 characters")
 
-    task = TaskService.update_task(db, task_id, task_update.title, task_update.description, user_id)
+    task = TaskService.update_task(
+        db,
+        task_id,
+        title=task_update.title,
+        description=task_update.description,
+        user_id=user_id,
+        due_date=task_update.due_date,
+        tags=task_update.tags,
+        status=task_update.status
+    )
     if not task:
         return error_response("Task not found", popup=None), status.HTTP_404_NOT_FOUND
 

@@ -63,8 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className={cn(
           'fixed left-0 top-16 z-40 h-[calc(100vh-4rem)]',
           'hidden lg:block',
-          'border-r border-purple-200 bg-white',
-          'dark:border-purple-800 dark:bg-purple-950/30',
+          'bg-[var(--glass-bg)] backdrop-blur-xl border-r border-[var(--glass-border)] shadow-[var(--shadow-glow)]',
           className
         )}
       >
@@ -76,10 +75,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           className={cn(
             'absolute -right-3 top-4 z-50',
             'flex h-6 w-6 items-center justify-center',
-            'rounded-full border-2 border-purple-200 bg-white',
-            'text-purple-600 shadow-md',
-            'hover:bg-purple-50',
-            'dark:border-purple-800 dark:bg-purple-950 dark:text-purple-400'
+            'rounded-full bg-[var(--glass-bg)] border border-[var(--glass-border)] shadow-[0_0_10px_rgba(139,92,246,0.2)]',
+            'text-[var(--primary-400)]',
+            'hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]'
           )}
           aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
@@ -102,14 +100,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     whileTap={{ scale: 0.98 }}
                     className={cn(
                       'flex items-center rounded-lg px-3 py-2.5',
-                      'text-purple-700 transition-colors',
-                      'hover:bg-purple-100',
-                      'dark:text-purple-300 dark:hover:bg-purple-900/50',
+                      'text-[var(--text-secondary)] transition-colors',
+                      'hover:bg-[var(--glass-bg)] hover:text-[var(--primary-400)] border border-transparent hover:border-[var(--glass-border)] shadow-[0_0_10px_rgba(139,92,246,0.1)] hover:shadow-[0_0_20px_rgba(139,92,246,0.2)]',
                       !isOpen && 'justify-center'
                     )}
                     title={!isOpen ? link.label : undefined}
                   >
-                    <Icon className="h-5 w-5 flex-shrink-0" />
+                    <Icon className="h-5 w-5 flex-shrink-0 text-[var(--primary-400)]" />
                     <AnimatePresence>
                       {isOpen && (
                         <motion.span
@@ -117,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           animate={{ opacity: 1, width: 'auto' }}
                           exit={{ opacity: 0, width: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="ml-3 font-medium"
+                          className="ml-3 font-medium text-[var(--text-primary)]"
                         >
                           {link.label}
                         </motion.span>
@@ -130,14 +127,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Sidebar footer */}
-          <div className="border-t border-purple-200 pt-4 dark:border-purple-800">
+          <div className="border-t border-[var(--glass-border)] pt-4">
             <AnimatePresence>
               {isOpen && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="px-3 text-xs text-purple-500 dark:text-purple-400"
+                  className="px-3 text-xs text-[var(--text-muted)]"
                 >
                   Todo App v1.0
                 </motion.div>

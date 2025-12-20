@@ -18,8 +18,8 @@
  */
 
 import React, { useState, FormEvent, ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
 import { login } from '@/services/authApi';
 import { loginSuccess, loginError } from '@/utils/authAlerts';
 import type { LoginFormData } from '@/types/auth';
@@ -42,6 +42,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export const LoginForm: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Form state
   const [formData, setFormData] = useState<LoginFormData>({
@@ -53,6 +54,7 @@ export const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof LoginFormData, boolean>>>({});
+  const [showPassword, setShowPassword] = useState(false);
 
   /**
    * Validate email field
@@ -156,8 +158,9 @@ export const LoginForm: React.FC = () => {
       // Show success alert
       await loginSuccess();
 
-      // Redirect to tasks page
-      router.push('/tasks');
+      // Redirect to intended page or tasks page as fallback
+      const redirectTo = searchParams.get('redirect') || '/tasks';
+      router.push(redirectTo);
     } catch (error) {
       // Show error alert with API message
       const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
@@ -171,12 +174,12 @@ export const LoginForm: React.FC = () => {
     <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md" noValidate>
       {/* Email Field */}
       <div className="space-y-2">
-        <label htmlFor="email" className="block text-sm font-medium text-purple-700">
+        <label htmlFor="email" className="block text-sm font-medium text-[var(--text-secondary)]">
           Email Address
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Mail className="h-5 w-5 text-purple-400" aria-hidden="true" />
+            <Mail className="h-5 w-5 text-[var(--primary-400)]" aria-hidden="true" />
           </div>
           <input
             type="email"
@@ -187,11 +190,13 @@ export const LoginForm: React.FC = () => {
             onBlur={handleBlur}
             disabled={isLoading}
             className={`
-              block w-full pl-10 pr-3 py-3 border rounded-lg
-              focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-              disabled:bg-gray-100 disabled:cursor-not-allowed
-              transition-colors
-              ${touched.email && errors.email ? 'border-red-500' : 'border-purple-300'}
+              block w-full pl-10 pr-3 py-3 rounded-lg
+              bg-[var(--glass-bg)] backdrop-blur-sm border border-[var(--glass-border)]
+              focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)]
+              disabled:bg-[var(--muted)] disabled:cursor-not-allowed
+              transition-all duration-300
+              shadow-[0_0_10px_rgba(139,92,246,0.1)] focus:shadow-[0_0_20px_rgba(139,92,246,0.2)]
+              ${touched.email && errors.email ? 'border-[var(--destructive)] focus:ring-[var(--destructive)] focus:shadow-[0_0_20px_rgba(239,68,68,0.2)]' : ''}
             `}
             placeholder="you@example.com"
             required
@@ -200,7 +205,7 @@ export const LoginForm: React.FC = () => {
           />
         </div>
         {touched.email && errors.email && (
-          <p id="email-error" className="text-sm text-red-600" role="alert">
+          <p id="email-error" className="text-sm text-[var(--destructive)]" role="alert">
             {errors.email}
           </p>
         )}
@@ -208,15 +213,15 @@ export const LoginForm: React.FC = () => {
 
       {/* Password Field */}
       <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-purple-700">
+        <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)]">
           Password
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Lock className="h-5 w-5 text-purple-400" aria-hidden="true" />
+            <Lock className="h-5 w-5 text-[var(--primary-400)]" aria-hidden="true" />
           </div>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             name="password"
             value={formData.password}
@@ -224,20 +229,34 @@ export const LoginForm: React.FC = () => {
             onBlur={handleBlur}
             disabled={isLoading}
             className={`
-              block w-full pl-10 pr-3 py-3 border rounded-lg
-              focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-              disabled:bg-gray-100 disabled:cursor-not-allowed
-              transition-colors
-              ${touched.password && errors.password ? 'border-red-500' : 'border-purple-300'}
+              block w-full pl-10 pr-10 py-3 rounded-lg
+              bg-[var(--glass-bg)] backdrop-blur-sm border border-[var(--glass-border)]
+              focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)]
+              disabled:bg-[var(--muted)] disabled:cursor-not-allowed
+              transition-all duration-300
+              shadow-[0_0_10px_rgba(139,92,246,0.1)] focus:shadow-[0_0_20px_rgba(139,92,246,0.2)]
+              ${touched.password && errors.password ? 'border-[var(--destructive)] focus:ring-[var(--destructive)] focus:shadow-[0_0_20px_rgba(239,68,68,0.2)]' : ''}
             `}
             placeholder="Enter your password"
             required
             aria-invalid={touched.password && !!errors.password}
             aria-describedby={touched.password && errors.password ? 'password-error' : undefined}
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--text-secondary)] hover:text-[var(--primary-400)]"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Eye className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
         </div>
         {touched.password && errors.password && (
-          <p id="password-error" className="text-sm text-red-600" role="alert">
+          <p id="password-error" className="text-sm text-[var(--destructive)]" role="alert">
             {errors.password}
           </p>
         )}
@@ -249,19 +268,21 @@ export const LoginForm: React.FC = () => {
         disabled={isLoading || !isFormValid()}
         className={`
           w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg
-          font-semibold text-white
-          bg-gradient-to-r from-purple-600 to-pink-600
-          hover:from-purple-700 hover:to-pink-700
-          focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2
-          disabled:opacity-50 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-500
+          font-semibold text-[var(--primary-foreground)]
+          bg-[var(--primary-500)]
+          hover:bg-[var(--primary-400)]
+          focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)] focus:ring-offset-2
+          disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[var(--muted)]
           transition-all duration-200
           transform hover:scale-105 active:scale-95
+          border border-[var(--primary-500)]
+          shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.4)]
         `}
         aria-label="Log in to account"
       >
         {isLoading ? (
           <>
-            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-[var(--primary-foreground)] border-t-transparent" />
             Logging In...
           </>
         ) : (

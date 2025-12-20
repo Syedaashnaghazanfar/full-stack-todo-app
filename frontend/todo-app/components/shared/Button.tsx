@@ -43,35 +43,29 @@ export const Button: React.FC<ButtonProps> = ({
     'rounded-lg px-6 py-3',
     'font-medium text-base',
     'transition-all duration-300',
-    'focus:outline-none focus:ring-4',
+    'focus:outline-none focus:ring-2',
     // Disabled state
     disabled && 'opacity-50 cursor-not-allowed',
     // Full width option
     fullWidth && 'w-full',
     // Variant styles
     variant === 'primary' && [
-      'bg-purple-600 text-white',
-      'hover:bg-purple-700',
-      'focus:ring-purple-300',
-      'dark:bg-purple-600 dark:hover:bg-purple-700',
-      'dark:focus:ring-purple-800',
-      'shadow-md hover:shadow-lg',
+      'bg-[var(--primary-500)] text-[var(--primary-foreground)]',
+      'hover:bg-[var(--primary-400)]',
+      'focus:ring-[var(--primary-500)]',
+      'shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.4)]',
+      'border border-[var(--primary-500)]',
     ],
     variant === 'secondary' && [
-      'bg-purple-200 text-purple-700',
-      'hover:bg-purple-300',
-      'focus:ring-purple-200',
-      'dark:bg-purple-900/50 dark:text-purple-200',
-      'dark:hover:bg-purple-800/50',
-      'dark:focus:ring-purple-900',
+      'bg-[var(--secondary)] text-[var(--secondary-foreground)]',
+      'hover:bg-[var(--secondary-foreground)] hover:text-[var(--secondary)]',
+      'focus:ring-[var(--secondary)]',
+      'border border-[var(--secondary)]',
     ],
     variant === 'outline' && [
-      'border-2 border-purple-600 text-purple-600',
-      'hover:bg-purple-50',
-      'focus:ring-purple-300',
-      'dark:border-purple-400 dark:text-purple-400',
-      'dark:hover:bg-purple-900/30',
-      'dark:focus:ring-purple-800',
+      'border-2 border-[var(--primary-500)] text-[var(--primary-500)]',
+      'hover:bg-[var(--primary-500)] hover:text-[var(--primary-foreground)]',
+      'focus:ring-[var(--primary-500)]',
     ],
     className
   );

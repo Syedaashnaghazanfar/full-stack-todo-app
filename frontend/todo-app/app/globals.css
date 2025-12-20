@@ -60,170 +60,195 @@
 }
 
 /* ========================================
-   LIGHT MODE - PURPLE THEME FOUNDATION
-   Phase 2 Homepage UI
+   LIGHT MODE - CYBERPUNK NEON ELEGANCE THEME
    ======================================== */
 :root {
   /* Border Radius */
   --radius: 0.625rem;
 
   /* ========================================
-     PURPLE COLOR PALETTE (HEX to OKLCH)
-     Spec: Primary Purple #8B5CF6 (Violet-500)
-     All colors verified for WCAG AAA contrast
+     CYBERPUNK COLOR PALETTE (HEX to OKLCH)
+     Primary Colors
      ======================================== */
+  --primary-50: oklch(0.984 0.015 293.71);   /* #f5f3ff */
+  --primary-100: oklch(0.962 0.035 293.71);  /* #ede9fe */
+  --primary-200: oklch(0.918 0.075 293.71);  /* #ddd6fe */
+  --primary-300: oklch(0.869 0.125 293.71);  /* #c4b5fd */
+  --primary-400: oklch(0.762 0.17 293.71);   /* #a78bfa */
+  --primary-500: oklch(0.643 0.205 293.71);  /* #8b5cf6 - Main accent */
+  --primary-600: oklch(0.578 0.225 293.71);  /* #7c3aed */
+  --primary-700: oklch(0.498 0.26 293.71);   /* #6d28d9 */
+  --primary-800: oklch(0.418 0.285 293.71);  /* #5b21b6 */
+  --primary-900: oklch(0.355 0.295 293.71);  /* #4c1d95 */
 
-  /* Purple Scale (Light to Dark) - HEX Reference:
-     #FAF5FF, #F3E8FF, #E9D5FF, #C4B5FD, #A78BFA,
-     #8B5CF6, #7C3AED, #6D28D9, #5B21B6, #4C1D95 */
+  /* Neon Accents */
+  --neon-purple: oklch(0.762 0.22 293.71);   /* #a855f7 */
+  --neon-blue: oklch(0.643 0.18 240);        /* #3b82f6 */
+  --neon-cyan: oklch(0.708 0.14 180);        /* #06b6d4 */
+  --neon-pink: oklch(0.708 0.18 340);        /* #ec4899 */
+  --neon-green: oklch(0.665 0.14 150);       /* #10b981 - For success/completed states */
+  --neon-red: oklch(0.643 0.18 15);          /* #ef4444 - For delete/error states */
+  --neon-yellow: oklch(0.762 0.14 80);       /* #f59e0b - For update/warning states */
 
-  --purple-50: oklch(0.984 0.015 293.71);   /* #FAF5FF - Lightest purple backgrounds */
-  --purple-100: oklch(0.962 0.035 293.71);  /* #F3E8FF - Very light purple hover */
-  --purple-200: oklch(0.918 0.075 293.71);  /* #E9D5FF - Light purple disabled */
-  --purple-300: oklch(0.869 0.125 293.71);  /* #C4B5FD - Light accent, borders */
-  --purple-400: oklch(0.762 0.17 293.71);   /* #A78BFA - Accent purple, secondary CTAs */
-  --purple-500: oklch(0.643 0.205 293.71);  /* #8B5CF6 - PRIMARY PURPLE (brand color) */
-  --purple-600: oklch(0.578 0.225 293.71);  /* #7C3AED - Button hover states */
-  --purple-700: oklch(0.498 0.26 293.71);   /* #6D28D9 - Active states, depth */
-  --purple-800: oklch(0.418 0.285 293.71);  /* #5B21B6 - Text on light backgrounds */
-  --purple-900: oklch(0.355 0.295 293.71);  /* #4C1D95 - Darkest, high contrast text */
+  /* Dark Theme Backgrounds */
+  --bg-darkest: oklch(0.01 0 0);             /* #030014 - Deepest background */
+  --bg-dark: oklch(0.04 0 0);                /* #0a0a1a - Main background */
+  --bg-card: oklch(0.06 0 0);                /* #0f0f23 - Card backgrounds */
+  --bg-elevated: oklch(0.10 0 0);            /* #1a1a2e - Elevated surfaces */
+  --bg-hover: oklch(0.14 0 0);               /* #252542 - Hover states */
+
+  /* Light Theme Backgrounds */
+  --bg-light-main: oklch(0.98 0 0);          /* #f8f7ff */
+  --bg-light-card: oklch(1 0 0);             /* #ffffff */
+  --bg-light-elevated: oklch(0.96 0 0);      /* #f0eeff */
+
+  /* Glass Effects */
+  --glass-bg: oklch(1 0 0 / 0.03);           /* rgba(255, 255, 255, 0.03) */
+  --glass-border: oklch(1 0 0 / 0.08);       /* rgba(255, 255, 255, 0.08) */
+  --glass-highlight: oklch(1 0 0 / 0.1);     /* rgba(255, 255, 255, 0.1) */
+
+  /* Text Colors */
+  --text-primary: oklch(0.98 0.01 260);      /* #f8fafc */
+  --text-secondary: oklch(0.64 0.02 240);    /* #94a3b8 */
+  --text-muted: oklch(0.44 0.01 240);        /* #64748b */
+  --text-accent: oklch(0.869 0.125 293.71);  /* #c4b5fd */
 
   /* ========================================
-     CONTRAST RATIOS (WCAG AAA Verified)
-     Minimum 7:1 for enhanced text, 4.5:1 for large text
+     SHADOW & GLOW EFFECTS
      ======================================== */
+  --glow-purple: 0 0 20px oklch(0.762 0.22 293.71 / 0.4), 0 0 40px oklch(0.762 0.22 293.71 / 0.2);
+  --glow-blue: 0 0 20px oklch(0.643 0.18 240 / 0.4), 0 0 40px oklch(0.643 0.18 240 / 0.2);
+  --glow-cyan: 0 0 20px oklch(0.708 0.14 180 / 0.4), 0 0 40px oklch(0.708 0.14 180 / 0.2);
 
-  /* Purple-500 (#8B5CF6) on White (#FFFFFF): 4.75:1 - WCAG AA (large text only) */
-  /* Purple-700 (#6D28D9) on White (#FFFFFF): 7.12:1 - WCAG AAA compliant */
-  /* Purple-800 (#5B21B6) on White (#FFFFFF): 9.51:1 - WCAG AAA+ compliant */
-  /* White (#FFFFFF) on Purple-500 (#8B5CF6): 4.75:1 - WCAG AA compliant */
-  /* White (#FFFFFF) on Purple-700 (#6D28D9): 7.12:1 - WCAG AAA compliant */
+  /* Card Shadows */
+  --shadow-sm: 0 2px 8px oklch(0 0 0 / 0.3);
+  --shadow-md: 0 4px 16px oklch(0 0 0 / 0.4);
+  --shadow-lg: 0 8px 32px oklch(0 0 0 / 0.5);
+  --shadow-glow: 0 0 40px oklch(0.643 0.205 293.71 / 0.15);
 
-  /* Recommendation for Text:
-     - Body text on white: Use Purple-700 or Purple-800 (7:1+ contrast)
-     - Buttons/CTAs: Purple-500 with white text (4.75:1 acceptable for buttons)
-     - Links: Purple-700 (7.12:1 for accessibility) */
+  /* Border Glow on Hover */
+  --border-glow: 0 0 0 1px oklch(0.643 0.205 293.71 / 0.5), 0 0 20px oklch(0.643 0.205 293.71 / 0.2);
 
   /* ========================================
-     SEMANTIC COLOR TOKENS (Purple Theme)
+     SEMANTIC COLOR TOKENS (Cyberpunk Theme)
      ======================================== */
 
   /* Backgrounds */
-  --background: oklch(1 0 0);                      /* White background */
-  --foreground: oklch(0.145 0 0);                  /* Near-black text */
+  --background: var(--bg-dark);                      /* Dark background */
+  --foreground: var(--text-primary);                 /* Light text */
 
   /* Cards & Popovers */
-  --card: oklch(1 0 0);                            /* White card background */
-  --card-foreground: oklch(0.145 0 0);             /* Dark text on cards */
-  --popover: oklch(1 0 0);                         /* White popover background */
-  --popover-foreground: oklch(0.145 0 0);          /* Dark text in popovers */
+  --card: var(--bg-card);                            /* Card background */
+  --card-foreground: var(--text-primary);            /* Light text on cards */
+  --popover: var(--bg-card);                         /* Popover background */
+  --popover-foreground: var(--text-primary);         /* Light text in popovers */
 
   /* Primary (Purple Theme) */
-  --primary: var(--purple-500);                    /* Purple-500 #8B5CF6 */
-  --primary-foreground: oklch(0.985 0 0);          /* White text on purple */
+  --primary: var(--primary-500);                     /* Purple-500 #8B5CF6 */
+  --primary-foreground: oklch(0.985 0 0);            /* White text on purple */
 
   /* Secondary (Light Purple) */
-  --secondary: var(--purple-100);                  /* Purple-100 #F3E8FF */
-  --secondary-foreground: oklch(0.205 0 0);        /* Dark text on light purple */
+  --secondary: var(--primary-100);                   /* Purple-100 #F3E8FF */
+  --secondary-foreground: oklch(0.205 0 0);          /* Dark text on light purple */
 
   /* Muted (Neutral Backgrounds) */
-  --muted: oklch(0.97 0 0);                        /* Light gray background */
-  --muted-foreground: oklch(0.556 0 0);            /* Gray text */
+  --muted: var(--bg-elevated);                       /* Dark gray background */
+  --muted-foreground: var(--text-secondary);         /* Gray text */
 
   /* Accent (Purple Accent) */
-  --accent: var(--purple-400);                     /* Purple-400 #A78BFA */
-  --accent-foreground: oklch(0.985 0 0);           /* White text on accent */
+  --accent: var(--primary-400);                      /* Purple-400 #A78BFA */
+  --accent-foreground: oklch(0.985 0 0);             /* White text on accent */
 
   /* Destructive (Error States) */
-  --destructive: oklch(0.577 0.245 27.325);        /* Red for errors */
-  --destructive-foreground: oklch(0.985 0 0);      /* White text on red */
+  --destructive: var(--neon-red);                    /* Neon red for errors */
+  --destructive-foreground: oklch(0.985 0 0);        /* White text on red */
 
   /* Borders & Inputs */
-  --border: oklch(0.922 0 0);                      /* Light gray border */
-  --input: oklch(0.922 0 0);                       /* Light gray input border */
+  --border: oklch(1 0 0 / 0.1);                      /* Subtle light border */
+  --input: oklch(1 0 0 / 0.15);                      /* Subtle input border */
 
   /* Focus Ring (Purple) */
-  --ring: var(--purple-500);                       /* Purple-500 focus ring */
+  --ring: var(--primary-500);                        /* Purple-500 focus ring */
 
   /* ========================================
-     CHART COLORS (Purple Theme)
+     CHART COLORS (Cyberpunk Theme)
      ======================================== */
-  --chart-1: var(--purple-500);                    /* Purple-500 */
-  --chart-2: var(--purple-400);                    /* Purple-400 */
-  --chart-3: var(--purple-700);                    /* Purple-700 */
-  --chart-4: var(--purple-300);                    /* Purple-300 */
-  --chart-5: var(--purple-800);                    /* Purple-800 */
+  --chart-1: var(--neon-purple);                     /* Neon purple */
+  --chart-2: var(--neon-blue);                       /* Neon blue */
+  --chart-3: var(--neon-cyan);                       /* Neon cyan */
+  --chart-4: var(--neon-pink);                       /* Neon pink */
+  --chart-5: var(--neon-green);                      /* Neon green */
 
   /* ========================================
-     SIDEBAR COLORS (Purple Theme)
+     SIDEBAR COLORS (Cyberpunk Theme)
      ======================================== */
-  --sidebar: oklch(0.985 0 0);                     /* Light sidebar background */
-  --sidebar-foreground: oklch(0.145 0 0);          /* Dark text in sidebar */
-  --sidebar-primary: var(--purple-500);            /* Purple-500 */
-  --sidebar-primary-foreground: oklch(0.985 0 0);  /* White text */
-  --sidebar-accent: var(--purple-100);             /* Purple-100 hover */
-  --sidebar-accent-foreground: oklch(0.205 0 0);   /* Dark text on hover */
-  --sidebar-border: oklch(0.922 0 0);              /* Light border */
-  --sidebar-ring: var(--purple-500);               /* Purple focus ring */
+  --sidebar: var(--bg-card);                         /* Dark sidebar background */
+  --sidebar-foreground: var(--text-primary);         /* Light text in sidebar */
+  --sidebar-primary: var(--neon-purple);             /* Neon purple */
+  --sidebar-primary-foreground: oklch(0.985 0 0);    /* White text */
+  --sidebar-accent: var(--bg-elevated);              /* Dark hover */
+  --sidebar-accent-foreground: var(--text-primary);  /* Light text on hover */
+  --sidebar-border: oklch(1 0 0 / 0.1);              /* Subtle border */
+  --sidebar-ring: var(--neon-purple);                /* Neon purple focus ring */
 }
 
 /* ========================================
-   DARK MODE - PURPLE THEME
+   DARK MODE - CYBERPUNK NEON ELEGANCE THEME
    ======================================== */
 .dark {
   /* Backgrounds */
-  --background: oklch(0.145 0 0);                  /* Dark background */
-  --foreground: oklch(0.985 0 0);                  /* Light text */
+  --background: var(--bg-darkest);                  /* Deepest background */
+  --foreground: var(--text-primary);                /* Light text */
 
   /* Cards & Popovers */
-  --card: oklch(0.205 0 0);                        /* Dark card background */
-  --card-foreground: oklch(0.985 0 0);             /* Light text on cards */
-  --popover: oklch(0.205 0 0);                     /* Dark popover */
-  --popover-foreground: oklch(0.985 0 0);          /* Light text in popovers */
+  --card: var(--bg-card);                           /* Card background */
+  --card-foreground: var(--text-primary);           /* Light text on cards */
+  --popover: var(--bg-card);                        /* Popover background */
+  --popover-foreground: var(--text-primary);        /* Light text in popovers */
 
-  /* Primary (Purple Theme - Lighter in Dark Mode) */
-  --primary: var(--purple-400);                    /* Purple-400 (lighter for contrast) */
-  --primary-foreground: oklch(0.145 0 0);          /* Dark text on lighter purple */
+  /* Primary (Cyberpunk Theme) */
+  --primary: var(--primary-400);                    /* Purple-400 (lighter for contrast) */
+  --primary-foreground: oklch(0.145 0 0);           /* Dark text on lighter purple */
 
   /* Secondary */
-  --secondary: oklch(0.269 0 0);                   /* Dark gray background */
-  --secondary-foreground: oklch(0.985 0 0);        /* Light text */
+  --secondary: var(--bg-elevated);                  /* Dark gray background */
+  --secondary-foreground: var(--text-primary);      /* Light text */
 
   /* Muted */
-  --muted: oklch(0.269 0 0);                       /* Dark gray muted */
-  --muted-foreground: oklch(0.708 0 0);            /* Lighter gray text */
+  --muted: var(--bg-elevated);                      /* Dark gray muted */
+  --muted-foreground: var(--text-secondary);        /* Lighter gray text */
 
   /* Accent */
-  --accent: var(--purple-500);                     /* Purple-500 accent */
-  --accent-foreground: oklch(0.985 0 0);           /* White text on accent */
+  --accent: var(--neon-purple);                     /* Neon purple accent */
+  --accent-foreground: oklch(0.985 0 0);            /* White text on accent */
 
   /* Destructive */
-  --destructive: oklch(0.704 0.191 22.216);        /* Red for errors */
-  --destructive-foreground: oklch(0.985 0 0);      /* White text on red */
+  --destructive: var(--neon-red);                   /* Neon red for errors */
+  --destructive-foreground: oklch(0.985 0 0);       /* White text on red */
 
   /* Borders & Inputs */
-  --border: oklch(1 0 0 / 10%);                    /* Subtle light border */
-  --input: oklch(1 0 0 / 15%);                     /* Subtle input border */
+  --border: oklch(1 0 0 / 0.1);                     /* Subtle light border */
+  --input: oklch(1 0 0 / 0.15);                     /* Subtle input border */
 
   /* Focus Ring */
-  --ring: var(--purple-400);                       /* Purple-400 focus ring */
+  --ring: var(--neon-purple);                       /* Neon purple focus ring */
 
-  /* Charts (Dark Mode) */
-  --chart-1: var(--purple-400);                    /* Purple-400 */
-  --chart-2: var(--purple-500);                    /* Purple-500 */
-  --chart-3: var(--purple-600);                    /* Purple-600 */
-  --chart-4: var(--purple-300);                    /* Purple-300 */
-  --chart-5: var(--purple-700);                    /* Purple-700 */
+  /* Charts (Cyberpunk Theme) */
+  --chart-1: var(--neon-purple);                    /* Neon purple */
+  --chart-2: var(--neon-blue);                      /* Neon blue */
+  --chart-3: var(--neon-cyan);                      /* Neon cyan */
+  --chart-4: var(--neon-pink);                      /* Neon pink */
+  --chart-5: var(--neon-green);                     /* Neon green */
 
-  /* Sidebar (Dark Mode) */
-  --sidebar: oklch(0.205 0 0);                     /* Dark sidebar */
-  --sidebar-foreground: oklch(0.985 0 0);          /* Light text */
-  --sidebar-primary: var(--purple-400);            /* Purple-400 */
-  --sidebar-primary-foreground: oklch(0.145 0 0);  /* Dark text on lighter purple */
-  --sidebar-accent: oklch(0.269 0 0);              /* Dark gray hover */
-  --sidebar-accent-foreground: oklch(0.985 0 0);   /* Light text on hover */
-  --sidebar-border: oklch(1 0 0 / 10%);            /* Subtle border */
-  --sidebar-ring: var(--purple-400);               /* Purple-400 focus ring */
+  /* Sidebar (Cyberpunk Theme) */
+  --sidebar: var(--bg-card);                        /* Dark sidebar */
+  --sidebar-foreground: var(--text-primary);        /* Light text */
+  --sidebar-primary: var(--neon-purple);            /* Neon purple */
+  --sidebar-primary-foreground: oklch(0.985 0 0);   /* White text on neon purple */
+  --sidebar-accent: var(--bg-elevated);             /* Dark gray hover */
+  --sidebar-accent-foreground: var(--text-primary); /* Light text on hover */
+  --sidebar-border: oklch(1 0 0 / 0.1);             /* Subtle border */
+  --sidebar-ring: var(--neon-purple);               /* Neon purple focus ring */
 }
 
 /* ========================================
@@ -304,20 +329,31 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Headings */
+  /* Headings - FORCE VISIBLE TEXT ON DARK BACKGROUNDS */
   h1, h2, h3, h4, h5, h6 {
     line-height: 1.2;
     font-weight: 600;
+    color: var(--text-primary) !important;
+  }
+
+  /* Paragraphs - Readable secondary color */
+  p {
+    color: var(--text-secondary);
+  }
+
+  /* Ensure body text is always visible */
+  body {
+    color: var(--text-primary);
   }
 
   /* Links */
   a {
-    color: oklch(0.498 0.26 293.71); /* Purple-700 for WCAG AAA compliance */
+    color: var(--primary-400); /* Lighter purple for better visibility */
     text-decoration: none;
   }
 
   a:hover {
-    color: oklch(0.643 0.205 293.71); /* Purple-500 on hover */
+    color: var(--primary-300); /* Even lighter on hover */
   }
 
   /* ========================================
@@ -347,5 +383,192 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: oklch(0.869 0.125 293.71) oklch(0.97 0 0); /* Purple-300 on light gray */
+  }
+
+  /* ========================================
+     SHIMMER ANIMATION FOR LOADING SKELETONS
+     Neon-themed shimmer effect
+     ======================================== */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* ========================================
+     SWEETALERT2 CUSTOM STYLING
+     Dark purple with neon glow effects
+     ======================================== */
+
+  /* Modal container with glassmorphism */
+  .swal2-popup {
+    background: rgba(15, 15, 35, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 2px solid rgba(139, 92, 246, 0.5) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.4), 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    color: #f8fafc !important;
+  }
+
+  /* Title styling */
+  .swal2-title {
+    color: #c4b5fd !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important;
+  }
+
+  /* Content text */
+  .swal2-html-container {
+    color: #94a3b8 !important;
+  }
+
+  /* Confirm button with neon purple gradient */
+  .swal2-confirm {
+    background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5) !important;
+    font-weight: 600 !important;
+    padding: 12px 24px !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .swal2-confirm:hover {
+    background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%) !important;
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.7) !important;
+    transform: scale(1.05) !important;
+  }
+
+  /* Cancel button with glass effect */
+  .swal2-cancel {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    color: #94a3b8 !important;
+    font-weight: 600 !important;
+    padding: 12px 24px !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .swal2-cancel:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(139, 92, 246, 0.3) !important;
+    color: #f8fafc !important;
+  }
+
+  /* Deny button (destructive actions) with red neon */
+  .swal2-deny {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border: 2px solid rgba(239, 68, 68, 0.5) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4) !important;
+    color: #fca5a5 !important;
+    font-weight: 600 !important;
+    padding: 12px 24px !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .swal2-deny:hover {
+    background: rgba(239, 68, 68, 0.3) !important;
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.6) !important;
+    transform: scale(1.05) !important;
+  }
+
+  /* Icon styling */
+  .swal2-icon {
+    border-color: rgba(139, 92, 246, 0.5) !important;
+  }
+
+  .swal2-icon.swal2-success {
+    border-color: rgba(16, 185, 129, 0.5) !important;
+  }
+
+  .swal2-icon.swal2-success [class^='swal2-success-line'] {
+    background-color: #10b981 !important;
+  }
+
+  .swal2-icon.swal2-success .swal2-success-ring {
+    border-color: rgba(16, 185, 129, 0.3) !important;
+  }
+
+  .swal2-icon.swal2-error {
+    border-color: rgba(239, 68, 68, 0.5) !important;
+  }
+
+  .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+    background-color: #ef4444 !important;
+  }
+
+  .swal2-icon.swal2-warning {
+    border-color: rgba(245, 158, 11, 0.5) !important;
+    color: #f59e0b !important;
+  }
+
+  .swal2-icon.swal2-info {
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    color: #3b82f6 !important;
+  }
+
+  .swal2-icon.swal2-question {
+    border-color: rgba(6, 182, 212, 0.5) !important;
+    color: #06b6d4 !important;
+  }
+
+  /* Input fields in SweetAlert modals */
+  .swal2-input, .swal2-textarea {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(139, 92, 246, 0.3) !important;
+    border-radius: 8px !important;
+    color: #f8fafc !important;
+    padding: 12px 16px !important;
+  }
+
+  .swal2-input:focus, .swal2-textarea:focus {
+    border-color: rgba(139, 92, 246, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2) !important;
+    outline: none !important;
+  }
+
+  .swal2-input::placeholder, .swal2-textarea::placeholder {
+    color: #64748b !important;
+  }
+
+  /* Validation message */
+  .swal2-validation-message {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    color: #fca5a5 !important;
+  }
+
+  /* Close button */
+  .swal2-close {
+    color: #94a3b8 !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .swal2-close:hover {
+    color: #f8fafc !important;
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.6) !important;
+  }
+
+  /* Progress steps */
+  .swal2-progress-steps .swal2-progress-step {
+    background: rgba(139, 92, 246, 0.3) !important;
+  }
+
+  .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step {
+    background: #8b5cf6 !important;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.6) !important;
+  }
+
+  /* Toast notifications */
+  .swal2-toast {
+    background: rgba(15, 15, 35, 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(139, 92, 246, 0.3) !important;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3) !important;
   }
 }
