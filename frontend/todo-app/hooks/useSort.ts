@@ -160,11 +160,6 @@ export function useSort(tasks: Task[]): UseSortReturn {
  * @returns Sort state from storage or default state
  */
 function loadSortFromStorage(): SortState {
-  // Check if we're running on the client side (not SSR)
-  if (typeof window === 'undefined') {
-    return DEFAULT_SORT_STATE;
-  }
-
   try {
     const saved = localStorage.getItem(SORT_STORAGE_KEY);
     if (saved) {
